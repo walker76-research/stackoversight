@@ -14,7 +14,7 @@ for question in questions['items']:
     if "tags" in question:
         tags = question['tags']
         for tag in tags:
-            if tag == "java":
+            if tag == "python":
                 urls.append(question['link'])
 print("Constructed urls")
 
