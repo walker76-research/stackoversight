@@ -1,5 +1,5 @@
 import pprint
-from stackapi import StackAPI, StackAPIError
+from stackapi import StackAPI
 from scraper import Scraper
 
 SITE = StackAPI('stackoverflow')
@@ -11,7 +11,11 @@ print("Retrieved questions")
 urls = []
 for question in questions['items']:
     # pprint.pprint(question)
-    urls.append(question['link'])
+    if "tags" in question:
+        tags = question['tags']
+        for tag in tags:
+            if tag == "java":
+                urls.append(question['link'])
 print("Constructed urls")
 
 scraper = Scraper()
