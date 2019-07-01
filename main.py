@@ -25,6 +25,7 @@ soup_dict = {}
 for url in urls:
     scraper.set_url(url)
     soup = scraper.scrape()
-    soup_dict[url] = soup
+    code_snippets = soup.find_all('code')
+    soup_dict[url] = code_snippets
 
 pprint.pprint(soup_dict)
