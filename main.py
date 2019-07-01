@@ -1,10 +1,13 @@
 import pprint
 from stackapi import StackAPI
 from scraper import Scraper
+import tokenize
+import io
+
 
 SITE = StackAPI('stackoverflow')
 SITE.max_pages = 2
-SITE.page_size = 100
+SITE.pagesize = 100
 questions = SITE.fetch('questions', min=10)
 print("Retrieved questions")
 
@@ -26,5 +29,10 @@ for url in urls[:10]:
     code_snippets = soup.find_all('code')
     soup_dict[url] = code_snippets
 
-
-
+for key in soup_dict:
+    value = soup_dict[key]
+    for code_snippet in value:
+        code = code_snippet.text
+        f = io.StringIO(code)
+        tokens = tokenize.tokenize(f.readline)
+        pprint.pprint(tokens)
