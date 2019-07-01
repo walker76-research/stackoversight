@@ -26,4 +26,5 @@ for url in urls[:10]:
     code_snippets = soup.find_all('code')
     soup_dict[url] = code_snippets
 
-pprint.pprint(soup_dict)
+
+
