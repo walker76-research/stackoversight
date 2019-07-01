@@ -3,26 +3,20 @@ from stackapi import StackAPI, StackAPIError
 from scraper import Scraper
 
 SITE = StackAPI('stackoverflow')
-comments = SITE.fetch('comments')
-
-post_ids = []
-for comment_metadata in comments["items"]:
-    post_ids.append(comment_metadata['post_id'])
-
-post_ids = post_ids[:20]
-try:
-    posts = SITE.fetch('posts', ids=post_ids)
-except StackAPIError as e:
-    print(e.message)
-    exit(-1)
+SITE.max_pages = 2
+SITE.page_size = 100
+questions = SITE.fetch('questions', min=10)
+print("Retrieved questions")
 
 urls = []
-for post_metadata in posts["items"]:
-    urls.append(post_metadata['link'])
+for question in questions['items']:
+    # pprint.pprint(question)
+    urls.append(question['link'])
+print("Constructed urls")
 
 scraper = Scraper()
 soup_dict = {}
-for url in urls:
+for url in urls[:10]:
     scraper.set_url(url)
     soup = scraper.scrape()
     code_snippets = soup.find_all('code')
