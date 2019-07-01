@@ -14,6 +14,12 @@ Before running the project you will need to install the StackOverflow API Python
 > pip install stackapi 
 ```
 
+With Python 3
+
+```
+> pip3 install stackapi 
+```
+
 ## Built With
 
 * [StackApi](https://stackapi.readthedocs.io/en/latest/) - Python library for connecting to StackOverflow
