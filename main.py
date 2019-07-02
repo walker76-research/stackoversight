@@ -40,7 +40,7 @@ with open("gitdump.pickle", "rb") as handle: # Opens the file
 print("Retrieved questions")
 # pick = Picklizer(questions)   # <- This is where we saved questions to file gitdump.pickle.
 
-urls = [question['link'] for question in questions]
+urls = [question['link'] for question in questions['items']]
 print("Constructed urls")
 
 scraper = Scraper()
