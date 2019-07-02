@@ -4,7 +4,7 @@ from enum import Enum
 
 DEBUG = True
 
-class ASTFormerStatus(Enum):
+class ASTFStatus(Enum):
     SUCCESS = 1
     FAILURE = 0
 
@@ -19,25 +19,25 @@ class ASTFormer:
         self.code = source
         try:
             self.tree = ast.parse(str(source))
-            self.status = ASTFormerStatus.SUCCESS
+            self.status = ASTFStatus.SUCCESS
         except SyntaxError:
             self.tree = None
-            self.status = ASTFormerStatus.FAILURE
+            self.status = ASTFStatus.FAILURE
             if DEBUG:
                 pprint("Failed to create syntax tree. Cannot compile the code to Python.")
                 pprint(SyntaxError)
         except:
             self.tree = None
-            self.status = ASTFormerStatus.FAILURE
+            self.status = ASTFStatus.FAILURE
             if DEBUG: pprint("Unknown error")
 
     def form_ast(self):
-        if self.status == ASTFormerStatus.SUCCESS:
+        if self.status == ASTFStatus.SUCCESS:
             analyzer = ASTIterator()
             analyzer.visit(self.tree)
 
     def dump(self):
-        if self.status == ASTFormerStatus.SUCCESS:
+        if self.status == ASTFStatus.SUCCESS:
             return ast.dump(self.tree)
         else:
             return None
