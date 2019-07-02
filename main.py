@@ -5,6 +5,8 @@ from io import StringIO
 from keyword_analyzer import KeywordAnalyzer
 from trie import TrieNode, add, find_prefix
 from astformer import ASTFormer, ASTFStatus
+from gitpickler import Picklizer
+import pickle
 
 
 def get_keywords(code: str):
@@ -29,11 +31,14 @@ def get_keywords(code: str):
     return keywords
 
 
-SITE = StackAPI('stackoverflow')
-SITE.max_pages = 1
-SITE.pagesize = 100
-questions = SITE.fetch('questions', tagged="python")
+# SITE = StackAPI('stackoverflow')
+# SITE.max_pages = 1
+# SITE.pagesize = 100
+# questions = SITE.fetch('questions', tagged="python")
+with open("gitdump.pickle", "rb") as handle: # Opens the file
+    questions = pickle.load(handle)
 print("Retrieved questions")
+# pick = Picklizer(questions)   # <- This is where we saved questions to file gitdump.pickle.
 
 urls = [question['link'] for question in questions]
 print("Constructed urls")
