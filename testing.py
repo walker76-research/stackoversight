@@ -40,7 +40,7 @@ INDENT
 
 def get_tokens(code: str):
     tokens = []
-    for token in generate_tokens(StringIO(code_base).readline):
+    for token in generate_tokens(StringIO(code).readline):
         # pprint.pprint(token)
         tokens.append((token[0], token[1]))
 
@@ -56,7 +56,7 @@ def get_tokens(code: str):
             start_token = keyword_analyzer.get_keyword()
             keywords.append(start_token)
 
-    return tokens
+    return keywords
 
 
 base_tokens = get_tokens(code_base)
