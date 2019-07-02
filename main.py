@@ -1,24 +1,40 @@
-import pprint
 from stackapi import StackAPI
 from scraper import Scraper
-import tokenize
-import io
+from tokenize import generate_tokens
+from io import StringIO
+from keyword_analyzer import KeywordAnalyzer
+from trie import TrieNode, add, find_prefix
+
+
+def get_keywords(code: str):
+    keyword_analyzer = KeywordAnalyzer()
+    tokens = []
+    for token in generate_tokens(StringIO(code).readline):
+        # pprint.pprint(token)
+        tokens.append((token[0], token[1]))
+
+    start_token = "START"
+    keywords = []
+    for token in tokens:
+
+        if token[1] == '\n':
+            continue
+
+        if keyword_analyzer.is_keyword(token, start_token):
+            # pprint.pprint(keyword_analyzer.get_keyword())
+            start_token = keyword_analyzer.get_keyword()
+            keywords.append(start_token)
+
+    return keywords
 
 
 SITE = StackAPI('stackoverflow')
 SITE.max_pages = 2
 SITE.pagesize = 100
-questions = SITE.fetch('questions', min=10)
+questions = SITE.fetch('questions', min=10, tagged="python")
 print("Retrieved questions")
 
-urls = []
-for question in questions['items']:
-    # pprint.pprint(question)
-    if "tags" in question:
-        tags = question['tags']
-        for tag in tags:
-            if tag == "python":
-                urls.append(question['link'])
+urls = [question['link'] for question in questions]
 print("Constructed urls")
 
 scraper = Scraper()
@@ -29,10 +45,10 @@ for url in urls[:10]:
     code_snippets = soup.find_all('code')
     soup_dict[url] = code_snippets
 
+root = TrieNode("*")
 for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
         code = code_snippet.text
-        f = io.StringIO(code)
-        tokens = tokenize.tokenize(f.readline)
-        pprint.pprint(tokens)
+        keywords = get_keywords(code)
+        add(root, keywords)
