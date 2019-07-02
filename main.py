@@ -6,6 +6,7 @@ from keyword_analyzer import KeywordAnalyzer
 from trie import TrieNode, add, find_prefix
 from astformer import ASTFormer, ASTFStatus
 from gitpickler import Picklizer
+from sanitizecode import SanitizeCode
 import pickle
 
 
@@ -57,13 +58,19 @@ code_totals = 0
 for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
-        code_totals = code_totals + 1
         code = code_snippet.text
         astf = ASTFormer(code)
         if astf.status == ASTFStatus.SUCCESS:
             keywords = get_keywords(code)
             add(root, keywords)
         else:
-            code_issues = code_issues + 1
+            sanitized_code = SanitizeCode(code)  # Attempt to sanitize the code
+            astf2 = ASTFormer(sanitized_code)
+            print(astf2.status)
+            if astf2.status == ASTFStatus.FAILURE:  # Check if attempted fixes could verify python 2
+                code_issues = code_issues + 1
+            else:
+                keywords = get_keywords(code)
+                add(root, keywords)
 
 print(str(code_totals) + " code snippets found. " + str(code_issues) + " could not compile.")

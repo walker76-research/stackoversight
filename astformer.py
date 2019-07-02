@@ -17,16 +17,18 @@ class ASTFormer:
         self.source = source
         self.stats = {"import": [], "from": []}
         self.code = source
+        self.faulty_lines = []
         try:
             self.tree = ast.parse(str(source))
             self.status = ASTFStatus.SUCCESS
-        except SyntaxError:
+        except SyntaxError as e:
             self.tree = None
             self.status = ASTFStatus.FAILURE
             if self.debug_mode():
                 pprint("Failed to create syntax tree. Cannot compile the code to Python.")
                 pprint(self.code)
-                pprint(SyntaxError)
+                print(getattr(e, 'message', repr(e)))
+                self.faulty_line = e.lineno
         except:
             self.tree = None
             self.status = ASTFStatus.FAILURE

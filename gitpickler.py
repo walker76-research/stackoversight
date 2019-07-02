@@ -5,7 +5,7 @@ import pickle
 # Default file name: "gitdump.pickle"
 class Picklizer:
     def __init__(self, data=None, file="gitdump.pickle"):
-        if data != None:
+        if data is None:
             with open(file,"wb") as handle:
                 pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
             self.data = data
