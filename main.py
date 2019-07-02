@@ -4,6 +4,7 @@ from tokenize import generate_tokens
 from io import StringIO
 from keyword_analyzer import KeywordAnalyzer
 from trie import TrieNode, add, find_prefix
+from astformer import ASTFormer, ASTFStatus
 
 
 def get_keywords(code: str):
@@ -50,5 +51,7 @@ for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
         code = code_snippet.text
-        keywords = get_keywords(code)
-        add(root, keywords)
+        astf = ASTFormer(code)
+        if astf.status == ASTFStatus.SUCCESS:
+            keywords = get_keywords(code)
+            add(root, keywords)
