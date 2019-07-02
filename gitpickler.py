@@ -1,5 +1,6 @@
 import pickle
 
+
 # Separate class in case we want to handle serialization further
 # Default file name: "gitdump.pickle"
 class Picklizer:

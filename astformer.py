@@ -2,11 +2,11 @@ import ast
 from pprint import pprint
 from enum import Enum
 
-DEBUG = True
 
 class ASTFStatus(Enum):
     SUCCESS = 1
     FAILURE = 0
+
 
 class ASTFormer:
     # Create an object of ASTFormer with the Python source code
@@ -23,13 +23,17 @@ class ASTFormer:
         except SyntaxError:
             self.tree = None
             self.status = ASTFStatus.FAILURE
-            if DEBUG:
+            if self.debug_mode():
                 pprint("Failed to create syntax tree. Cannot compile the code to Python.")
+                pprint(self.code)
                 pprint(SyntaxError)
         except:
             self.tree = None
             self.status = ASTFStatus.FAILURE
-            if DEBUG: pprint("Unknown error")
+            if self.debug_mode(): pprint("Unknown error")
+
+    def debug_mode(self): # Sets debug mode on or off
+        return False
 
     def form_ast(self):
         if self.status == ASTFStatus.SUCCESS:
@@ -50,6 +54,7 @@ class ASTFormer:
 
     def report(self):
         pprint(self.stats)
+
 
 class ASTIterator(ast.NodeVisitor):
     # Class for traversing the AST tree.

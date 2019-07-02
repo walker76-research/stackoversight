@@ -52,11 +52,18 @@ for url in urls[:10]:
     soup_dict[url] = code_snippets
 
 root = TrieNode("*")
+code_issues = 0
+code_totals = 0
 for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
+        code_totals = code_totals + 1
         code = code_snippet.text
         astf = ASTFormer(code)
         if astf.status == ASTFStatus.SUCCESS:
             keywords = get_keywords(code)
             add(root, keywords)
+        else:
+            code_issues = code_issues + 1
+
+print(str(code_totals) + " code snippets found. " + str(code_issues) + " could not compile.")
