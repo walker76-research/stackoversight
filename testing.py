@@ -2,6 +2,7 @@ from io import StringIO
 from tokenize import generate_tokens
 import pprint
 from keyword_analyzer import KeywordAnalyzer
+from trie import TrieNode, add
 
 keyword_analyzer = KeywordAnalyzer()
 code = "for i in range(1,11):\n" \
@@ -46,3 +47,7 @@ for token in tokens:
         pprint.pprint(keyword_analyzer.get_keyword())
         start_token = keyword_analyzer.get_keyword()
         keywords.append(start_token)
+
+root = TrieNode('*')
+add(root, keywords)
+print(root)
