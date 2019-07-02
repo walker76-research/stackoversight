@@ -29,9 +29,9 @@ def get_keywords(code: str):
 
 
 SITE = StackAPI('stackoverflow')
-SITE.max_pages = 2
+SITE.max_pages = 1
 SITE.pagesize = 100
-questions = SITE.fetch('questions', min=10, tagged="python")
+questions = SITE.fetch('questions', tagged="python")
 print("Retrieved questions")
 
 urls = [question['link'] for question in questions]
