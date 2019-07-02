@@ -41,7 +41,7 @@ def add(root, keywords: []):
 def find_prefix(root, keywords: []) -> Tuple[bool, int]:
     """
     Check and return 
-      1. If the prefix exsists in any of the words we added so far
+      1. If the prefix exists in any of the words we added so far
       2. If yes then how may words actually have the prefix
     """
     node = root
@@ -65,4 +65,4 @@ def find_prefix(root, keywords: []) -> Tuple[bool, int]:
     # Well, we are here means we have found the prefix. Return true to indicate that
     # And also the counter of the last node. This indicates how many words have this
     # prefix
-    return True, node.counter
+    return node.word_finished, node.counter
