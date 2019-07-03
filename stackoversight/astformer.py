@@ -1,7 +1,7 @@
 import ast
 from pprint import pprint
 from enum import Enum
-from sanitizecode import SanitizeCode
+from stackoversight.sanitizecode import SanitizeCode
 
 # TODO: Go line by line and remove lines of code that are comments or plaintext
 # TODO: Sanitizer and Filter files

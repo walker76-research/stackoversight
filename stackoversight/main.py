@@ -1,13 +1,12 @@
-from stackapi import StackAPI
-from scraper import Scraper
 from tokenize import generate_tokens
 from io import StringIO
-from keyword_analyzer import KeywordAnalyzer
-from trie import TrieNode, add, find_prefix
-from astformer import ASTFormer, ASTFStatus
-from gitpickler import Picklizer
-from sanitizecode import SanitizeCode
 import pickle
+
+from stackoversight.scraper import Scraper
+from stackoversight.keyword_analyzer import KeywordAnalyzer
+from stackoversight.trie import TrieNode, add
+from stackoversight.astformer import ASTFormer, ASTFStatus
+from stackoversight.sanitizecode import SanitizeCode
 
 
 def get_keywords(code: str):
@@ -36,7 +35,7 @@ def get_keywords(code: str):
 # SITE.max_pages = 1
 # SITE.pagesize = 100
 # questions = SITE.fetch('questions', tagged="python")
-with open("gitdump.pickle", "rb") as handle: # Opens the file
+with open("data/gitdump.pickle", "rb") as handle: # Opens the file
     questions = pickle.load(handle)
 print("Retrieved questions")
 # pick = Picklizer(questions)   # <- This is where we saved questions to file gitdump.pickle.
@@ -47,6 +46,7 @@ print("Constructed urls")
 scraper = Scraper()
 soup_dict = {}
 for url in urls[:10]:
+    print(f'Scraping {url}')
     scraper.set_url(url)
     soup = scraper.scrape()
     code_snippets = soup.find_all('code')

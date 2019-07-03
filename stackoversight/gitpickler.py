@@ -10,11 +10,11 @@ class Picklizer:
                 pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
             self.data = data
 
-    def save(self, data, file="gitdump.pickle"):
+    def save(self, data, file="data/gitdump.pickle"):
         with open(file, "wb") as handle:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def open(self, file="gitdump.pickle"):
+    def open(self, file="data/gitdump.pickle"):
         with open(file, "rb") as handle:
             self.data = pickle.load(handle)
         return self.data
