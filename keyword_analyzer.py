@@ -1,7 +1,7 @@
 import keyword
 
-class KeywordAnalyzer:
 
+class KeywordAnalyzer:
     def __init__(self):
         self.keyword = None
         self.keywords = {}

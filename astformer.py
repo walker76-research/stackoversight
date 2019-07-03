@@ -3,7 +3,8 @@ from pprint import pprint
 from enum import Enum
 from sanitizecode import SanitizeCode
 
-
+# TODO: Go line by line and remove lines of code that are comments or plaintext
+# TODO: Sanitizer and Filter files
 class ASTFStatus(Enum):
     SUCCESS = 1
     PROCESSING = 0
@@ -20,7 +21,7 @@ class ASTFormer:
         self.stats = {"import": [], "from": []}
         self.code = source
         self.status = ASTFStatus.PROCESSING
-        self.faulty_lines = []
+        self.faulty_line = -1
         try:
             self.tree = ast.parse(str(source))
             self.status = ASTFStatus.SUCCESS
