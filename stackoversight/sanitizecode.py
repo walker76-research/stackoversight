@@ -17,6 +17,22 @@ class SanitizeCode:
             ws = len(line.lstrip())
         return len(line) - ws
 
+    def add_indents(self, lineno):
+        code = self.code.splitlines()
+        newcode = " " * 4 + code[lineno]
+        code[lineno] = newcode
+        self.code = "\n".join(code)
+
+    def strip_comments(self):
+        code = self.code.splitlines()
+        for num, line in enumerate(code):
+            comment = line.find("#")
+            if comment > 0:
+                if line[comment - 1] is not "\\":
+                    fixed_line = line[0:comment]
+                    code[num] = fixed_line
+        self.code = "\n".join(code)
+
     def clean_false_indents(self):
         code = self.code.splitlines()
         flagged = False

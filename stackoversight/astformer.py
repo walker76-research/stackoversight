@@ -1,7 +1,11 @@
 import ast
+import copy
 from pprint import pprint
 from enum import Enum
-from stackoversight.sanitizecode import SanitizeCode
+from sanitizecode import SanitizeCode
+from tokenize import generate_tokens
+from io import StringIO
+
 
 # TODO: Go line by line and remove lines of code that are comments or plaintext
 # TODO: Sanitizer and Filter files
@@ -16,25 +20,69 @@ class ASTFormer:
     # to create an abstract syntax tree of the code. form_ast()
     # iterates the tree.
     # Sets status to SUCCESS if valid Python code (determined by if AST can be formed).
+    MAX_ITERATIONS = 25
+
     def __init__(self, source):
-        self.source = source
         self.stats = {"import": [], "from": []}
         self.code = source
         self.status = ASTFStatus.PROCESSING
         self.faulty_line = -1
+        self.iterations = 0
+
+        self.code = self.remove_plaintext(self.code)
+        code_sanitizer = SanitizeCode(self.code)
+        code_sanitizer.strip_comments()
+        self.code = code_sanitizer.code
+
+        while self.status is not ASTFStatus.SUCCESS and self.iterations < ASTFormer.MAX_ITERATIONS:
+            self.sanitize()
+            self.iterations = self.iterations + 1
+        if self.debug_mode():
+            if self.status == ASTFStatus.SUCCESS:
+                print("AST Formed Successfully, resolved " + str(self.iterations) + " errors.")
+                print(self.code)
+            else:
+                print("Could not form AST.")
+
+    def remove_plaintext(self, code: str):
+        no_plaintext = code.splitlines()
+        fix = copy.deepcopy(no_plaintext)
+        for num, line in enumerate(no_plaintext):
+            if line.strip() != "":
+                try:
+                    newline = line.strip()
+                    tree = ast.parse(newline, mode='single')
+                except Exception as e:
+                    if e.args[0] != "unexpected EOF while parsing":
+                        fix[num] = None
+        return "\n".join(filter(None, fix))
+
+    def sanitize(self):
         try:
-            self.tree = ast.parse(str(source))
+            self.tree = ast.parse(str(self.code))
             self.status = ASTFStatus.SUCCESS
         except IndentationError as e:                   # TODO: handle more types of exceptions and sanitize as needed
-            san_code = SanitizeCode(self.source)        # sanitzation handler
-            san_code.clean_false_indents()              # attempts to clean up indentation errors
-            try:
-                self.tree = ast.parse(san_code.code)    # attempt re-parse
-                self.status = ASTFStatus.SUCCESS
-            except Exception as e:                              # there is an exception remaining that is not indentation.
-                self.status = ASTFStatus.FAILURE                # could abstract this out into a loop and run until no
-                if self.debug_mode(): self.debug_exception(e)   # exceptions are given under a given loop threshold.
-        except SyntaxError as e:                        # The exception is not indentation related initially.
+            if e.args[0] == "unexpected indent":
+                san_code = SanitizeCode(self.code)        # sanitzation handler
+                san_code.clean_false_indents()              # attempts to clean up indentation errors
+                self.code = san_code.code
+                try:
+                    self.tree = ast.parse(self.code)    # attempt re-parse
+                    self.status = ASTFStatus.SUCCESS
+                except Exception as e:                              # there is an exception remaining that is not indentation.
+                    self.status = ASTFStatus.FAILURE                # could abstract this out into a loop and run until no
+                    if self.debug_mode(): self.debug_exception(e)   # exceptions are given under a given loop threshold.
+            elif e.args[0] == "expected an indented block":
+                san_code = SanitizeCode(self.code)
+                san_code.add_indents(e.args[1][1]-1)
+                self.code = san_code.code
+                try:
+                    self.tree = ast.parse(self.code)
+                    self.status = ASTFStatus.SUCCESS
+                except Exception as e:
+                    self.status = ASTFStatus.FAILURE
+                    if self.debug_mode(): self.debug_exception(e)
+        except SyntaxError as e:  # The exception is not indentation related initially.
             self.tree = None
             self.status = ASTFStatus.FAILURE
             if self.debug_mode(): self.debug_exception(e)
@@ -77,14 +125,52 @@ class ASTIterator(ast.NodeVisitor):
 
     # (found online) finds the import packages and appends to
     # stats attribute of ASTFormer.
-    def visit_Import(self, node):
+    def visit_import(self, node):
         for alias in node.names:
             self.stats["import"].append(alias.name)
         self.generic_visit(node)
 
     # (found online) finds the from imports and appends to
     # stats attribute of ASTFormer.
-    def visit_ImportFrom(self, node):
+    def visit_import_from(self, node):
         for alias in node.names:
             self.stats["from"].append(alias.name)
         self.generic_visit(node)
+
+code = """import numpy
+
+class Test(AnotherClass):
+    def __init__(self, param1, param2):
+        self.prop1 = param1
+        self.prop2 = param1 * param2
+        print("Created test object")
+    
+    def what_am_i(self):
+        print("I am a test object")
+    
+    def change_prop1(self, param1):
+        self.prop1 = param1
+
+test_obj = Test(10,15)
+test_obj.what_am_i()
+
+This program is an example of how
+plaintext is being greedily deleted
+from code.
+
+===================
+EXAMPLE_PLAINTEXT           COLUMN2             COLUMN3
+Notice this text            another column      last column
+last row                    final column2       last one of column3
+
+Does this cover all bases? No
+Maybe it does: I am not sure.
+def test_inside_plaintext():
+    print("wowza!")
+===================
+
+"""
+
+astf = ASTFormer("")
+code2 = astf.remove_plaintext(code)
+print(code2)
