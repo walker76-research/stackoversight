@@ -5,8 +5,6 @@ import pickle
 from stackoversight.scraper import Scraper
 from stackoversight.keyword_analyzer import KeywordAnalyzer
 from stackoversight.trie import TrieNode, add
-from stackoversight.astformer import ASTFormer, ASTFStatus
-from stackoversight.sanitizecode import SanitizeCode
 
 
 def get_keywords(code: str):
@@ -51,24 +49,11 @@ for url in urls[:10]:
     soup_dict[url] = code_snippets
 
 root = TrieNode("*")
-code_issues = 0
-code_totals = 0
+
 for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
         code = code_snippet.text
-        astf = ASTFormer(code)
-        if astf.status == ASTFStatus.SUCCESS:
-            keywords = get_keywords(code)
-            add(root, keywords)
-        else:
-            sanitized_code = SanitizeCode(code)  # Attempt to sanitize the code
-            astf2 = ASTFormer(sanitized_code)
-            print(astf2.status)
-            if astf2.status == ASTFStatus.FAILURE:  # Check if attempted fixes could verify python 2
-                code_issues = code_issues + 1
-            else:
-                keywords = get_keywords(code)
-                add(root, keywords)
+        keywords = get_keywords(code)
+        add(root, keywords)
 
-print(str(code_totals) + " code snippets found. " + str(code_issues) + " could not compile.")
