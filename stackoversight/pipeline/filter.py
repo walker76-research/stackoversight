@@ -19,13 +19,14 @@ class Filter(ProcessingStep):
         self.increments = 10
         self.max_increments = 10
 
-    def operation(self, filter):
+    def operation(self, item):
         """
         Returns a code snippet that can actually be compiled. Sanitizes more as needed. None if not
         """
-        while self.increments > 1 or self.filter_status is Filter.FilterStatus.FAIL:
+        item = self.check_filter(item)
+        while self.increments > 1 and item is None:
             self.increments = self.increments - 1
-            filter = self.filter(filter)
+            item = self.check_filter(item)
         self.increments = self.max_increments
         return filter
 
@@ -49,14 +50,13 @@ class Filter(ProcessingStep):
                 self.filter_status = Filter.FilterStatus.FAIL
                 return None
 
-    def filter(self, item):
+    def check_filter(self, item):
         try:
             ast.parse(str(item))
             self.filter_status = Filter.FilterStatus.SUCCESS
-        except IndentationError as e:
-            item = self.handle_indentations(item, e)
-        except SyntaxError as e:
-            item = None
-            self.filter_status = Filter.FilterStatus.FAIL
-        finally:
             return item
+        except IndentationError as e:
+            return self.handle_indentations(item, e)
+        except SyntaxError as e:
+            self.filter_status = Filter.FilterStatus.FAIL
+            return None
