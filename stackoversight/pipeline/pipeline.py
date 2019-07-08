@@ -1,5 +1,10 @@
 class Pipeline(object):
-    def __init__(self, steps):
+    def __init__(self, steps=None):
+        if steps is None:
+            steps = []
+        self.steps = steps
+
+    def set_steps(self, steps):
         self.steps = steps
     
     def feed(self, items):

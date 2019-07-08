@@ -1,11 +1,11 @@
-class Filter(object):
+class ProcessingStep(object):
     def __init__(self):
         self.results = []
 
     def process(self, items):
         for item in items:
-            for result in self.operation(item):
-                self.results.append(result)
+            result = self.operation(item)
+            self.results.append(result)
 
     def get(self):
         return self.results
