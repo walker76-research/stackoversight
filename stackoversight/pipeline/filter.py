@@ -1,5 +1,5 @@
-from astformer import ASTFStatus, ASTFormer
-from pipeline.processing_step import ProcessingStep
+from stackoversight.astformer import ASTFStatus, ASTFormer
+from stackoversight.pipeline.processing_step import ProcessingStep
 
 
 class Filter(ProcessingStep):

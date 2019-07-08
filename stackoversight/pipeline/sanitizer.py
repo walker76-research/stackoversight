@@ -1,6 +1,6 @@
 import ast
 import copy
-from pipeline.processing_step import ProcessingStep
+from stackoversight.pipeline.processing_step import ProcessingStep
 
 
 class Sanitizer(ProcessingStep):
