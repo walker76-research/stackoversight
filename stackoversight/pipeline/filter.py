@@ -4,8 +4,8 @@ class Filter(object):
 
     def process(self, items):
         for item in items:
-            for result in self.operation(item):
-                self.results.append(result)
+            result = self.operation(item)
+            self.results.append(result)
 
     def get(self):
         return self.results

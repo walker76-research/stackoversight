@@ -1,9 +1,9 @@
 import keyword
+from pprint import pprint
 
 
 class KeywordAnalyzer:
     def __init__(self):
-        self.keyword = None
         self.keywords = {}
         for kywd in keyword.kwlist:
             self.keywords[kywd] = "KEYWORD_" + kywd.upper()
@@ -11,72 +11,60 @@ class KeywordAnalyzer:
         self.keywords["print"] = "FUNCTION_PRINT"
         self.keywords[":"] = "OPERATOR_COLON"
 
-    def is_keyword(self, token, prev_token):
+    def get_keyword(self, prev_token, token):
         type = token[0]
         word = token[1]
 
         if word in self.keywords:
-            self.keyword = self.keywords[word]
-            return True
+            return self.keywords[word]
 
         if type == 0:
-            self.keyword = "FORMAT_ENDMARKER"
-            return True
+            return "FORMAT_ENDMARKER"
 
-        if type == 5:
-            self.keyword = "INDENT"
-            return True
+        if type == 1:
+            if prev_token == "KEYWORD_IMPORT":
+                return "KEYWORD_MODULE"
 
-        if type == 6:
-            self.keyword = "DEDENT"
-            return True
+            if prev_token == "KEYWORD_CLASS":
+                return "KEYWORD_CLASS_NAME"
 
-        if prev_token == "KEYWORD_IMPORT" and type == 1:
-            self.keyword = "KEYWORD_MODULE"
-            return True
+            if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR":
+                return "KEYWORD_PARAMETER"
 
-        if prev_token == "KEYWORD_CLASS" and type == 1:
-            self.keyword = "KEYWORD_CLASS_NAME"
-            return True
+            if prev_token == "KEYWORD_DEF":
+                return "KEYWORD_FUNCTION_NAME"
+
+            if prev_token == "KEYWORD_FOR" or prev_token == "KEYWORD_WHILE":
+                return "VARIABLE"
+
+            return "VARIABLE"
 
         if type == 2:
             if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR":
-                self.keyword = "KEYWORD_PARAMETER"
-                return True
+                return "KEYWORD_PARAMETER"
             else:
-                self.keyword = "NUMBER"
-                return True
+                return "NUMBER"
 
-        if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR"\
-                and type == 1:
-            self.keyword = "KEYWORD_PARAMETER"
-            return True
+        if type == 3:
+            return "STRING"
 
-        if prev_token == "KEYWORD_DEF" and type == 1:
-            self.keyword = "KEYWORD_FUNCTION_NAME"
-            return True
+        if type == 5:
+            return "INDENT"
 
-        if prev_token == "KEYWORD_FOR" and type == 1:
-            self.keyword = "VARIABLE"
-            return True
+        if type == 6:
+            return "DEDENT"
 
         if type == 53:
-            if prev_token == "KEYWORD_PARAMETER":
-                self.keyword = "KEYWORD_PARAMETER_SEPARATOR"
-                return True
 
             if word == "(":
-                self.keyword = "KEYWORD_OPEN_PARENTHESIS"
-                return True
+                return "KEYWORD_OPEN_PARENTHESIS"
 
             if word == ")":
-                self.keyword = "KEYWORD_CLOSE_PARENTHESIS"
-                return True
+                return "KEYWORD_CLOSE_PARENTHESIS"
 
-            self.keyword = "OPERATOR"
-            return True
+            if prev_token == "KEYWORD_PARAMETER":
+                return "KEYWORD_PARAMETER_SEPARATOR"
 
-        return False
+            return "OPERATOR"
 
-    def get_keyword(self):
-        return self.keyword
+        pprint(token)

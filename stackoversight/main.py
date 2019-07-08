@@ -23,10 +23,8 @@ def get_keywords(code: str):
         if token[1] == '\n':
             continue
 
-        if keyword_analyzer.is_keyword(token, start_token):
-            # pprint.pprint(keyword_analyzer.get_keyword())
-            start_token = keyword_analyzer.get_keyword()
-            keywords.append(start_token)
+        start_token = keyword_analyzer.get_keyword(token, start_token)
+        keywords.append(start_token)
 
     return keywords
 
