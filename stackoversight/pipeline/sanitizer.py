@@ -8,11 +8,6 @@ class Sanitizer(ProcessingStep):
     Input for Pipeline - An array of arrays of code snippet strings
     Output for Pipeline - An array of arrays of code snippet strings
     """
-
-    def __init__(self):
-        super(ProcessingStep, self).__init__()
-        self.trees = []
-
     def operation(self, item):
         """
         Returns a code snippet that is cleaned from comments/plaintext/bad indentation
