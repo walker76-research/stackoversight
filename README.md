@@ -8,16 +8,16 @@ These instructions will get a copy of the project up and running on your local m
 
 ### Prerequisites
 
-Before running the project you will need to install the StackOverflow API Python Library
+Before running the project you will need to install the StackOverflow API and BeautifulSoup 4 libraries
 
 ```
-> pip install stackapi 
+> pip install stackapi bs4
 ```
 
 With Python 3
 
 ```
-> pip3 install stackapi 
+> pip3 install stackapi bs4
 ```
 
 ## Built With
