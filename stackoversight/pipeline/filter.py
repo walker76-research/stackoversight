@@ -9,13 +9,9 @@ class Filter(ProcessingStep):
     Input for Pipeline - An array of arrays of code snippet strings
     Output for Pipeline - An array of arrays of code snippet strings
     """
-    class FilterStatus(Enum):
-        SUCCESS = 0
-        FAIL = 1
 
     def __init__(self):
         super(ProcessingStep, self).__init__()
-        self.filter_status = Filter.FilterStatus.FAIL
         self.increments = 10
         self.max_increments = 10
 
@@ -35,28 +31,22 @@ class Filter(ProcessingStep):
             item = Sanitizer.remove_false_indents(item)
             try:
                 ast.parse(item)
-                self.filter_status = Filter.FilterStatus.SUCCESS
                 return item
             except Exception:
-                self.filter_status = Filter.FilterStatus.FAIL
                 return None
         elif e.args[0] == "expected an indented block":
             item = Sanitizer.add_indents(item, e.args[1][1] - 1)
             try:
                 ast.parse(item)
-                self.filter_status = Filter.FilterStatus.SUCCESS
                 return item
             except Exception:
-                self.filter_status = Filter.FilterStatus.FAIL
                 return None
 
     def check_filter(self, item):
         try:
             ast.parse(str(item))
-            self.filter_status = Filter.FilterStatus.SUCCESS
             return item
         except IndentationError as e:
             return self.handle_indentations(item, e)
         except SyntaxError as e:
-            self.filter_status = Filter.FilterStatus.FAIL
             return None
