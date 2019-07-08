@@ -3,6 +3,10 @@ import copy
 from lib2to3 import refactor
 from setuptools import lib2to3_fixer_packages
 
+"""
+THIS FILE IS DEPRECATED NOW
+"""
+
 
 # Currently does not fully work. Was working for simple 'print x' to 'print(x)', need to investigate other fixes
 # Should not need to ever be handled in main. Used as backend for astformer.py

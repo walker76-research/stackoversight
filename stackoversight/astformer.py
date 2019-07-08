@@ -18,7 +18,6 @@ class ASTFormer:
     MAX_ITERATIONS = 25
 
     def __init__(self, source):
-        self.stats = {"import": [], "from": []}
         self.code = source
         self.status = ASTFStatus.PROCESSING
         self.faulty_line = -1
@@ -75,11 +74,6 @@ class ASTFormer:
         print(getattr(e, 'message', repr(e)))
         self.faulty_line = e.lineno
 
-    def form_ast(self):
-        if self.status == ASTFStatus.SUCCESS:
-            analyzer = ASTIterator()
-            analyzer.visit(self.tree)
-
     def dump(self):
         if self.status == ASTFStatus.SUCCESS:
             return ast.dump(self.tree)
@@ -98,23 +92,3 @@ class ASTFormer:
     @staticmethod
     def debug_mode(mode=False):  # Sets debug mode on or off
         return mode
-
-
-class ASTIterator(ast.NodeVisitor):
-    # Class for traversing the AST tree.
-    def __init__(self):
-        self.stats = {"import": [], "from": []}
-
-    # (found online) finds the import packages and appends to
-    # stats attribute of ASTFormer.
-    def visit_import(self, node):
-        for alias in node.names:
-            self.stats["import"].append(alias.name)
-        self.generic_visit(node)
-
-    # (found online) finds the from imports and appends to
-    # stats attribute of ASTFormer.
-    def visit_import_from(self, node):
-        for alias in node.names:
-            self.stats["from"].append(alias.name)
-        self.generic_visit(node)
