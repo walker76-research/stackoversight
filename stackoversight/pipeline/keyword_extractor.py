@@ -31,17 +31,19 @@ class KeywordExtractor(ProcessingStep):
 
 def get_keyword(prev_token, token):
 
-    keywords = get_keywords()
-    type = token[0]
+    token_type = token[0]
     word = token[1]
+
+    keywords = get_keywords()
+    type_dictionary = get_type_dictionary()
 
     if word in keywords:
         return keywords[word]
 
-    if type == 0:
-        return "FORMAT_ENDMARKER"
+    if token_type in type_dictionary:
+        return type_dictionary[token_type]
 
-    if type == 1:
+    if token_type == 1:
         if prev_token == "KEYWORD_IMPORT":
             return "KEYWORD_MODULE"
 
@@ -59,28 +61,13 @@ def get_keyword(prev_token, token):
 
         return "VARIABLE"
 
-    if type == 2:
+    if token_type == 2:
         if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR":
             return "KEYWORD_PARAMETER"
         else:
             return "NUMBER"
 
-    if type == 3:
-        return "STRING"
-
-    if type == 5:
-        return "INDENT"
-
-    if type == 6:
-        return "DEDENT"
-
-    if type == 53:
-
-        if word == "(":
-            return "KEYWORD_OPEN_PARENTHESIS"
-
-        if word == ")":
-            return "KEYWORD_CLOSE_PARENTHESIS"
+    if token_type == 53:
 
         if prev_token == "KEYWORD_PARAMETER":
             return "KEYWORD_PARAMETER_SEPARATOR"
@@ -90,9 +77,20 @@ def get_keyword(prev_token, token):
 
 def get_keywords():
     keywords = {}
-    for kywd in keyword.kwlist:
-        keywords[kywd] = "KEYWORD_" + kywd.upper()
+    for key in keyword.kwlist:
+        keywords[key] = "KEYWORD_" + key.upper()
     keywords["range"] = "FUNCTION_RANGE"
     keywords["print"] = "FUNCTION_PRINT"
     keywords[":"] = "OPERATOR_COLON"
+    keywords["("] = "KEYWORD_OPEN_PARENTHESIS"
+    keywords[")"] = "KEYWORD_CLOSE_PARENTHESIS"
     return keywords
+
+
+def get_type_dictionary():
+    return {
+        0: "FORMAT_ENDMARKER",
+        3: "STRING",
+        5: "INDENT",
+        6: "DEDENT"
+    }
