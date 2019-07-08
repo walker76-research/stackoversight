@@ -1,7 +1,6 @@
 import ast
-from enum import Enum
-from stackoversight.pipeline.processing_step import ProcessingStep
-from stackoversight.pipeline.sanitizer import Sanitizer
+from stackoversight.pipeline import ProcessingStep
+from stackoversight.pipeline import Sanitizer
 
 
 class Filter(ProcessingStep):
@@ -11,7 +10,7 @@ class Filter(ProcessingStep):
     """
 
     def __init__(self):
-        super(ProcessingStep, self).__init__()
+        super(Filter, self).__init__()
         self.increments = 10
         self.max_increments = 10
 
