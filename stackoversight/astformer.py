@@ -1,12 +1,9 @@
 import ast
-import copy
 from pprint import pprint
 from enum import Enum
 from sanitizecode import SanitizeCode
 
 
-# TODO: Go line by line and remove lines of code that are comments or plaintext
-# TODO: Sanitizer and Filter files
 class ASTFStatus(Enum):
     SUCCESS = 1
     PROCESSING = 0
@@ -27,12 +24,10 @@ class ASTFormer:
         self.faulty_line = -1
         self.iterations = 0
         self.tree = None
-        self.code = self.remove_plaintext(self.code)
-        code_sanitizer = SanitizeCode(self.code)
-        code_sanitizer.strip_comments()
-        self.code = code_sanitizer.code
+
+        # Make sure the code runs (filter)
         while self.status is not ASTFStatus.SUCCESS and self.iterations < ASTFormer.MAX_ITERATIONS:
-            self.sanitize()
+            self.cleanup()
             self.iterations = self.iterations + 1
         if self.debug_mode():
             if self.status == ASTFStatus.SUCCESS:
@@ -41,21 +36,22 @@ class ASTFormer:
             else:
                 print("Could not form AST.")
 
-    def sanitize(self):
+    def cleanup(self):
         try:
             self.tree = ast.parse(str(self.code))
             self.status = ASTFStatus.SUCCESS
         except IndentationError as e:                               # TODO: handle more types of exceptions and sanitize as needed
             if e.args[0] == "unexpected indent":
-                san_code = SanitizeCode(self.code)                  # sanitzation handler
-                san_code.clean_false_indents()                      # attempts to clean up indentation errors
+                san_code = SanitizeCode(self.code)
+                san_code.remove_false_indents()
                 self.code = san_code.code
                 try:
-                    self.tree = ast.parse(self.code)                # attempt re-parse
+                    self.tree = ast.parse(self.code)
                     self.status = ASTFStatus.SUCCESS
-                except Exception as e:                              # there is an exception remaining that is not indentation.
-                    self.status = ASTFStatus.FAILURE                # could abstract this out into a loop and run until no
-                    if self.debug_mode(): self.debug_exception(e)   # exceptions are given under a given loop threshold.
+                except Exception as e:
+                    self.status = ASTFStatus.FAILURE
+                    if self.debug_mode():
+                        self.debug_exception(e)
             elif e.args[0] == "expected an indented block":
                 san_code = SanitizeCode(self.code)
                 san_code.add_indents(e.args[1][1]-1)
@@ -65,11 +61,13 @@ class ASTFormer:
                     self.status = ASTFStatus.SUCCESS
                 except Exception as e:
                     self.status = ASTFStatus.FAILURE
-                    if self.debug_mode(): self.debug_exception(e)
-        except SyntaxError as e:                                    # The exception is not indentation related initially.
+                    if self.debug_mode():
+                        self.debug_exception(e)
+        except SyntaxError as e:
             self.tree = None
             self.status = ASTFStatus.FAILURE
-            if self.debug_mode(): self.debug_exception(e)
+            if self.debug_mode():
+                self.debug_exception(e)
 
     def debug_exception(self, e):
         pprint("Failed to create syntax tree. Cannot compile the code to Python.")
@@ -96,20 +94,6 @@ class ASTFormer:
 
     def report(self):
         pprint(self.stats)
-
-    @staticmethod
-    def remove_plaintext(code: str):
-        no_plaintext = code.splitlines()
-        fix = copy.deepcopy(no_plaintext)
-        for num, line in enumerate(no_plaintext):
-            if line.strip() != "":
-                try:
-                    newline = line.strip()
-                    ast.parse(newline, mode='single')
-                except Exception as e:
-                    if e.args[0] != "unexpected EOF while parsing":
-                        fix[num] = None
-        return "\n".join(filter(None, fix))
 
     @staticmethod
     def debug_mode(mode=False):  # Sets debug mode on or off

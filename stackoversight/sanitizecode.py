@@ -1,3 +1,5 @@
+import ast
+import copy
 from lib2to3 import refactor
 from setuptools import lib2to3_fixer_packages
 
@@ -21,7 +23,7 @@ class SanitizeCode:
         code[lineno] = newcode
         self.code = "\n".join(code)
 
-    def strip_comments(self):
+    def remove_comments(self):
         code = self.code.splitlines()
         for num, line in enumerate(code):
             comment = line.find("#")
@@ -31,7 +33,7 @@ class SanitizeCode:
                     code[num] = fixed_line
         self.code = "\n".join(code)
 
-    def clean_false_indents(self):
+    def remove_false_indents(self):
         code = self.code.splitlines()
         flagged = False
         for num, line in enumerate(code):
@@ -49,6 +51,19 @@ class SanitizeCode:
         self.code = "\n".join(code)
 
     # Get the exact error types and sanitize from there
+    def remove_plaintext(self):
+        no_plaintext = self.code.splitlines()
+        fix = copy.deepcopy(no_plaintext)
+        for num, line in enumerate(no_plaintext):
+            if not line.strip():
+                try:
+                    newline = line.strip()
+                    ast.parse(newline, mode='single')
+                except Exception as e:
+                    if e.args[0] != "unexpected EOF while parsing":
+                        fix[num] = None
+        self.code = "\n".join(filter(None, fix))
+
     def refactor(self):
         try:
             factory = refactor.RefactoringTool(refactor.get_fixers_from_package(lib2to3_fixer_packages[0]))
