@@ -8,17 +8,23 @@ These instructions will get a copy of the project up and running on your local m
 
 ### Prerequisites
 
-Before running the project you will need to install the StackOverflow API and BeautifulSoup 4 libraries
+Before running the project you will need to install the StackOverflow API and BeautifulSoup 4 libraries. Additionally you will need Redis and Dotenv
 
 ```
-> pip install stackapi beautifulsoup4
+> pip install stackapi beautifulsoup4 redis python-dotenv
 ```
 
 With Python 3
 
 ```
-> pip3 install stackapi beautifulsoup4
+> pip3 install stackapi beautifulsoup4 redis python-dotenv
 ```
+
+#### Redis Configuration
+
+In the project rename the '.env-example' to '.env'
+
+You shouldn't have to change the REDIS_HOST or REDIS_PORT if running locally. Set the REDIS_PASSWORD to whatever you set when configuring the redis.conf file.
 
 ## Built With
 
