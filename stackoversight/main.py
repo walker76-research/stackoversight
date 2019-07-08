@@ -1,30 +1,7 @@
-from tokenize import generate_tokens
-from io import StringIO
 import pickle
 
 from stackoversight.scraper import Scraper
-from stackoversight.keyword_analyzer import KeywordAnalyzer
 from stackoversight.trie import TrieNode, add
-
-
-def get_keywords(code: str):
-    keyword_analyzer = KeywordAnalyzer()
-    tokens = []
-    for token in generate_tokens(StringIO(code).readline):
-        # pprint.pprint(token)
-        tokens.append((token[0], token[1]))
-
-    start_token = "START"
-    keywords = []
-    for token in tokens:
-
-        if token[1] == '\n':
-            continue
-
-        start_token = keyword_analyzer.get_keyword(token, start_token)
-        keywords.append(start_token)
-
-    return keywords
 
 
 # SITE = StackAPI('stackoverflow')
@@ -54,6 +31,4 @@ for key in soup_dict:
     value = soup_dict[key]
     for code_snippet in value:
         code = code_snippet.text
-        keywords = get_keywords(code)
-        add(root, keywords)
-
+        print(code)
