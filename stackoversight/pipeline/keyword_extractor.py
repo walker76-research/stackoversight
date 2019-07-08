@@ -64,8 +64,8 @@ def get_keyword(prev_token, token):
     if token_type == 2:
         if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR":
             return "KEYWORD_PARAMETER"
-        else:
-            return "NUMBER"
+
+        return "NUMBER"
 
     if token_type == 53:
 
