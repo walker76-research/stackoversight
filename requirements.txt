@@ -1,2 +1,2 @@
 stackapi
-bs4
+beautifulsoup4
