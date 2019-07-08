@@ -8,6 +8,11 @@ class Sanitizer(ProcessingStep):
     Input for Pipeline - An array of arrays of code snippet strings
     Output for Pipeline - An array of arrays of code snippet strings
     """
+
+    def __init__(self):
+        super(ProcessingStep, self).__init__()
+        self.trees = []
+
     def operation(self, item):
         """
         Returns a code snippet that is cleaned from comments/plaintext/bad indentation
@@ -65,4 +70,11 @@ class Sanitizer(ProcessingStep):
                         flagged = True
             else:
                 flagged = False
+        return "\n".join(code)
+
+    @staticmethod
+    def add_indents(code, lineno):
+        code = code.splitlines()
+        line = " " * 4 + code[lineno]
+        code[lineno] = line
         return "\n".join(code)

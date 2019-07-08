@@ -39,7 +39,7 @@ class ASTFormer:
         try:
             self.tree = ast.parse(str(self.code))
             self.status = ASTFStatus.SUCCESS
-        except IndentationError as e:                               # TODO: handle more types of exceptions and sanitize as needed
+        except IndentationError as e:
             if e.args[0] == "unexpected indent":
                 san_code = SanitizeCode(self.code)
                 san_code.remove_false_indents()
