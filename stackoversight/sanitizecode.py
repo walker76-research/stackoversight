@@ -1,7 +1,5 @@
-from lib2to3 import refactor, fixes
+from lib2to3 import refactor
 from setuptools import lib2to3_fixer_packages
-import lib2to3.main
-import lib2to3.fixer_base
 
 
 # Currently does not fully work. Was working for simple 'print x' to 'print(x)', need to investigate other fixes
