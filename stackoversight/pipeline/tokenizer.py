@@ -1,13 +1,16 @@
 from io import StringIO
 from tokenize import generate_tokens
-from stackoversight.pipeline.filter import Filter
+from stackoversight.pipeline import ProcessingStep
 
 
-# This will receive a piece of code and should return an array of tokens
-class Tokenizer(Filter):
+class Tokenizer(ProcessingStep):
+    """
+    Input for Pipeline - An array of strings, each string is a code snippet
+    Output for Pipeline - An array of arrays of tokens
+    """
 
     def operation(self, item):
         """
-        Retrieves the tokens for a string representation of the code
+        Returns the tokens for a string representation of the code
         """
         return [(token[0], token[1]) for token in generate_tokens(StringIO(item).readline)]

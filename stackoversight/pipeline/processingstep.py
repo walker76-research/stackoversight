@@ -1,4 +1,4 @@
-class Filter(object):
+class ProcessingStep(object):
     def __init__(self):
         self.results = []
 
