@@ -3,8 +3,6 @@ import copy
 from pprint import pprint
 from enum import Enum
 from sanitizecode import SanitizeCode
-from tokenize import generate_tokens
-from io import StringIO
 
 
 # TODO: Go line by line and remove lines of code that are comments or plaintext
@@ -29,12 +27,10 @@ class ASTFormer:
         self.faulty_line = -1
         self.iterations = 0
         self.tree = None
-
         self.code = self.remove_plaintext(self.code)
         code_sanitizer = SanitizeCode(self.code)
         code_sanitizer.strip_comments()
         self.code = code_sanitizer.code
-
         while self.status is not ASTFStatus.SUCCESS and self.iterations < ASTFormer.MAX_ITERATIONS:
             self.sanitize()
             self.iterations = self.iterations + 1
