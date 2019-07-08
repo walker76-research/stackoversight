@@ -1,8 +1,9 @@
 import keyword
 from stackoversight.pipeline import ProcessingStep
+from token import *
 
 
-class KeywordExtractor(ProcessingStep):
+class KeywordExtractor():
     """
     Input for Pipeline - An array of arrays of tokens
     Output for Pipeline - An array of arrays of keywords
@@ -19,7 +20,7 @@ class KeywordExtractor(ProcessingStep):
         for token in item:
 
             # Ignore newlines since they're not important
-            if token[0] == 4:
+            if token[0] == NEWLINE:
                 continue
 
             # Retrieve the token and reset the previous token
@@ -38,10 +39,10 @@ def get_keyword(prev_token, token):
     if word in keywords:
         return keywords[word]
 
-    if type == 0:
+    if type == ENDMARKER:
         return "FORMAT_ENDMARKER"
 
-    if type == 1:
+    if type == NAME:
         if prev_token == "KEYWORD_IMPORT":
             return "KEYWORD_MODULE"
 
@@ -59,22 +60,22 @@ def get_keyword(prev_token, token):
 
         return "VARIABLE"
 
-    if type == 2:
+    if type == NUMBER:
         if prev_token == "KEYWORD_OPEN_PARENTHESIS" or prev_token == "KEYWORD_PARAMETER_SEPARATOR":
             return "KEYWORD_PARAMETER"
         else:
             return "NUMBER"
 
-    if type == 3:
+    if type == STRING:
         return "STRING"
 
-    if type == 5:
+    if type == INDENT:
         return "INDENT"
 
-    if type == 6:
+    if type == DEDENT:
         return "DEDENT"
 
-    if type == 53:
+    if type == OP:
 
         if word == "(":
             return "KEYWORD_OPEN_PARENTHESIS"
