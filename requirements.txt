@@ -1,4 +1,5 @@
 stackapi
 beautifulsoup4
 redis
+rq
 python-dotenv
