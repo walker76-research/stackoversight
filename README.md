@@ -11,18 +11,20 @@ These instructions will get a copy of the project up and running on your local m
 Before running the project you will need to install the StackOverflow API and BeautifulSoup 4 libraries
 
 ```
-> pip install stackapi bs4
+> pip install stackapi beautifulsoup4
 ```
 
 With Python 3
 
 ```
-> pip3 install stackapi bs4
+> pip3 install stackapi beautifulsoup4
 ```
 
 ## Built With
 
 * [StackApi](https://stackapi.readthedocs.io/en/latest/) - Python library for connecting to StackOverflow
+* [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) - Python library for extracting HTML and XML data
+
 
 ## Authors
 
