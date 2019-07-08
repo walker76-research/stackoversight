@@ -1,5 +1,5 @@
-from pipeline.processing_step import ProcessingStep
-from sanitizecode import SanitizeCode
+from stackoversight.pipeline.processing_step import ProcessingStep
+from stackoversight.sanitizecode import SanitizeCode
 
 
 class Sanitizer(ProcessingStep):
@@ -15,4 +15,4 @@ class Sanitizer(ProcessingStep):
         sc.remove_plaintext()
         sc.remove_comments()
         sc.remove_false_indents()
-        return filter(None, sc.code)
+        return sc.code
