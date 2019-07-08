@@ -24,9 +24,19 @@ class Filter(ProcessingStep):
             self.increments = self.increments - 1
             item = self.check_filter(item)
         self.increments = self.max_increments
-        return filter
+        return item
 
-    def handle_indentations(self, item, e):
+    def check_filter(self, item):
+        try:
+            ast.parse(str(item))
+            return item
+        except IndentationError as e:
+            return self.handle_indentations(item, e)
+        except SyntaxError as e:
+            return None
+
+    @staticmethod
+    def handle_indentations(item, e):
         if e.args[0] == "unexpected indent":
             item = Sanitizer.remove_false_indents(item)
             try:
@@ -41,12 +51,3 @@ class Filter(ProcessingStep):
                 return item
             except Exception:
                 return None
-
-    def check_filter(self, item):
-        try:
-            ast.parse(str(item))
-            return item
-        except IndentationError as e:
-            return self.handle_indentations(item, e)
-        except SyntaxError as e:
-            return None
