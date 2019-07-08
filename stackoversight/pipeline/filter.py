@@ -29,27 +29,32 @@ class Filter(ProcessingStep):
         self.increments = self.max_increments
         return filter
 
+    def handle_indentations(self, item, e):
+        if e.args[0] == "unexpected indent":
+            item = Sanitizer.remove_false_indents(item)
+            try:
+                ast.parse(item)
+                self.filter_status = Filter.FilterStatus.SUCCESS
+                return item
+            except Exception:
+                self.filter_status = Filter.FilterStatus.FAIL
+                return None
+        elif e.args[0] == "expected an indented block":
+            item = Sanitizer.add_indents(item, e.args[1][1] - 1)
+            try:
+                ast.parse(item)
+                self.filter_status = Filter.FilterStatus.SUCCESS
+                return item
+            except Exception:
+                self.filter_status = Filter.FilterStatus.FAIL
+                return None
+
     def filter(self, item):
         try:
             ast.parse(str(item))
             self.filter_status = Filter.FilterStatus.SUCCESS
         except IndentationError as e:
-            if e.args[0] == "unexpected indent":
-                item = Sanitizer.remove_false_indents(item)
-                try:
-                    ast.parse(item)
-                    self.filter_status = Filter.FilterStatus.SUCCESS
-                except Exception as e:
-                    item = None
-                    self.filter_status = Filter.FilterStatus.FAIL
-            elif e.args[0] == "expected an indented block":
-                item = Sanitizer.add_indents(item, e.args[1][1]-1)
-                try:
-                    ast.parse(item)
-                    self.filter_status = Filter.FilterStatus.SUCCESS
-                except Exception as e:
-                    item = None
-                    self.filter_status = Filter.FilterStatus.FAIL
+            item = self.handle_indentations(item, e)
         except SyntaxError as e:
             item = None
             self.filter_status = Filter.FilterStatus.FAIL
