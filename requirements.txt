@@ -1,2 +1,4 @@
 stackapi
 beautifulsoup4
+redis
+python-dotenv
