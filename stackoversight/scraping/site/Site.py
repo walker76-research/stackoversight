@@ -4,8 +4,6 @@
 import requests
 # To parse the HTML documents
 from bs4 import BeautifulSoup
-# To set the http_proxy environment variable
-import os
 # Use regex to filter links
 import re
 # For timing to avoid rate limiting
@@ -77,7 +75,7 @@ class Site(object):
         return links
 
     def get_by_tag_class(self, url: str, tag_class: str, get_all=True, pause=False, sleep_max=5):
-        parse_tree = get_parse_tree(url, pause, sleep_max)
+        parse_tree = self.get_parse_tree(url, pause, sleep_max)
 
         # to get text need to use the tag's class to specify, and not the tag itself
         try:
@@ -93,7 +91,7 @@ class Site(object):
         return content
 
     def get_by_tag(self, url: str, tag: str, get_all=True, pause=False, sleep_max=5):
-        parse_tree = get_parse_tree(url, pause, sleep_max)
+        parse_tree = self.get_parse_tree(url, pause, sleep_max)
 
         # to get code need to use the tag
         try:
@@ -176,7 +174,7 @@ class StackOverflow(Site):
         return url.split('/')[4]
 
     def get_text(url: str, pause=False, sleep_max=5):
-        return get_by_tag_class(url, 'post-text', pause=pause, sleep_max=sleep_max)
+        return super.get_by_tag_class(url, 'post-text', pause=pause, sleep_max=sleep_max)
 
     def get_code(url: str, pause=False, sleep_max=5):
-        return get_by_tag(url, 'code', pause=pause, sleep_max=sleep_max)
+        return super.get_by_tag(url, 'code', pause=pause, sleep_max=sleep_max)
