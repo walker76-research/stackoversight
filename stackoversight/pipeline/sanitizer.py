@@ -30,7 +30,7 @@ class Sanitizer(ProcessingStep):
         for num, line in enumerate(code):
             comment = line.find("#")
             if comment > 0:
-                if line[comment - 1] is not "\\":
+                if line[comment - 1] != "\\":
                     fixed_line = line[0:comment]
                     code[num] = fixed_line
         return "\n".join(code)
