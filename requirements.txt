@@ -1,2 +1,3 @@
+requests
 stackapi
 bs4
