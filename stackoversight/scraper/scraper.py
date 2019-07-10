@@ -2,19 +2,22 @@
 import os
 # For making the site requests and overall request management
 from stackoversight.scraper.stack_overflow import StackOverflow
+# For client_credential objects
+from requests.auth import HTTPBasicAuth
 
 # address of the proxy server
 proxy = 'http://localhost:5050'
 
 # set the environment variable http_proxy and such
-os.environ['http_proxy'] = proxy
-os.environ['HTTP_PROXY'] = proxy
-os.environ['https_proxy'] = proxy
-os.environ['HTTPS_PROXY'] = proxy
+# os.environ['http_proxy'] = proxy
+# os.environ['HTTP_PROXY'] = proxy
+# os.environ['https_proxy'] = proxy
+# os.environ['HTTPS_PROXY'] = proxy
 
-client_credentials = [(15696, 'GmSeo*z3TFTDcL8wIz3xUA(('), (15697, '1DF6PpPTMTQOT*Mm8v*Mng((')]
+client_auths = [HTTPBasicAuth(15696, 'GmSeo*z3TFTDcL8wIz3xUA(('),
+                HTTPBasicAuth(15697, '1DF6PpPTMTQOT*Mm8v*Mng((')]
 
-site = StackOverflow(client_credentials)
+site = StackOverflow(client_auths)
 
 python_posts = site.create_parent_link(site.Categories.question, [site.Tags.python], site.Tabs.frequent)
 

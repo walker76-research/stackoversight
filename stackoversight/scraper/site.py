@@ -1,25 +1,26 @@
 # Credit to Ben Shaver for his guide on scraping stackoverflow
 
+# For the proxy error
 import requests
 # To parse the HTML documents
 from bs4 import BeautifulSoup
-# For nap time if were nice to the process and the site
+# For nap time if we're nice to the process and the site
 from time import sleep
 # For site request limit management
 import datetime
 # For balancing client requests to the site
 from stackoversight.scraper.site_balancer import SiteBalancer
-# To authenticate the client
-from requests.auth import HTTPBasicAuth
-# For client app authentication and to send requests
+# For authentication and to send requests
 from requests_oauthlib import OAuth2Session
 # To init the site oauth2 sessions
 from oauthlib.oauth2 import BackendApplicationClient
+# For client_credential objects
+from requests.auth import HTTPBasicAuth
 
 
 class Site(object):
-    def __init__(self, oauth_c_c: list, timeout_sec: int, limit: int):
-        self.balancer = SiteBalancer(oauth_c_c, timeout_sec, limit)
+    def __init__(self, client_credentials: list, timeout_sec: int, limit: int):
+        self.balancer = SiteBalancer(client_credentials, timeout_sec, limit)
         self.limit = limit
         self.timeout_sec = timeout_sec
         self.last_pause_time = None
@@ -47,15 +48,15 @@ class Site(object):
         raise NotImplementedError
 
     def get_soup(self, url: str, pause=False, pause_time=None):
+        # handle delay if set to spread out requests
+        if pause:
+            self.pause(pause_time)
+
         # TODO: Set this up to wait on a signal from a timer thread so that it isn't a busy wait
         # get the next id to use or wait until one is ready
         while not self.balancer.is_ready():
             sleep(1)
             print(":(")
-
-        # handle delay if set to spread out requests
-        if pause:
-            self.pause(pause_time)
 
         client_credential = next(self.balancer)
 
@@ -63,7 +64,8 @@ class Site(object):
         try:
             response = client_credential.oauth_session.get(url)
         except:
-            print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n")
+            print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n"
+                  "Could also be an issue with your token?")
             raise requests.exceptions.ProxyError
 
         # mark the request as being made
@@ -82,6 +84,16 @@ class Oauth2ClientCredential(object):
     """
     Example of backend workflow from https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
 
+    from oauthlib.oauth2 import BackendApplicationClient
+    client = BackendApplicationClient(client_id=client_id)
+    oauth = OAuth2Session(client=client)
+    token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
+        client_secret=client_secret)
+
+    If your provider requires that you pass auth credentials in a Basic Auth header, you can do this instead:
+
+    from oauthlib.oauth2 import BackendApplicationClient
+    from requests.auth import HTTPBasicAuth
     auth = HTTPBasicAuth(client_id, client_secret)
     client = BackendApplicationClient(client_id=client_id)
     oauth = OAuth2Session(client=client)
@@ -90,8 +102,13 @@ class Oauth2ClientCredential(object):
     r = oauth.get('https://www.googleapis.com/oauth2/v1/userinfo')
     """
 
-    def __init__(self, client_id: int, client_secret: str, token_url: str):
-        self.auth = HTTPBasicAuth(client_id, client_secret)
-        self.client = BackendApplicationClient(client_id=client_id)
+    def __init__(self, client_auth: HTTPBasicAuth, token_url: str):
+        self.auth = client_auth
+        self.client = BackendApplicationClient(client_id=client_auth.username)
         self.oauth_session = OAuth2Session(client=self.client)
         self.token = self.oauth_session.fetch_token(token_url=token_url, auth=self.auth)
+
+    def __lt__(self, other):
+        if not isinstance(other, Oauth2ClientCredential):
+            raise TypeError
+        return self.auth.username < other.auth.username

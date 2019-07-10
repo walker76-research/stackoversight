@@ -19,13 +19,12 @@ class StackOverflow(Site):
     token_url = 'https://stackoverflow.com/oauth/access_token'
 
     """
-        client_credentials must be a tuple with client_id first and client_secret second
+        client_credentials must be a list of HTTPBasicAuth
     """
-    def __init__(self, client_credentials: list):
-        oauth_c_c =\
-            [Oauth2ClientCredential(credential[0], credential[1], self.token_url) for credential in client_credentials]
+    def __init__(self, client_auths: list):
+        client_credentials = [Oauth2ClientCredential(auth, self.token_url) for auth in client_auths]
 
-        super(StackOverflow, self).__init__(oauth_c_c, self.timeout_sec, self.limit)
+        super(StackOverflow, self).__init__(client_credentials, self.timeout_sec, self.limit)
 
     class Sorts(Enum):
         frequency = 'MostFrequent'
@@ -95,7 +94,7 @@ class StackOverflow(Site):
 
         # handle possible error
         if not links:
-            print("The proxy is failing to pull from the site for some reason...")
+            print("The proxy is up but it is failing to pull from the site.")
             raise requests.exceptions.ProxyError
 
         # filter to make sure only processing non empty links with question followed by a number and drop duplicates
