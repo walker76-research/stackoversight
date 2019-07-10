@@ -1,3 +1,5 @@
+oauthlib
+requests_oauthlib
 recordclass
 requests
 stackapi

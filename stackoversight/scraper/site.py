@@ -1,6 +1,5 @@
 # Credit to Ben Shaver for his guide on scraping stackoverflow
 
-# To send out HTTP requests
 import requests
 # To parse the HTML documents
 from bs4 import BeautifulSoup
@@ -8,21 +7,29 @@ from bs4 import BeautifulSoup
 from time import sleep
 # For site request limit management
 import datetime
-
+# For balancing client requests to the site
 from stackoversight.scraper.site_balancer import SiteBalancer
+# To authenticate the client
+from requests.auth import HTTPBasicAuth
+# For client app authentication and to send requests
+from requests_oauthlib import OAuth2Session
+# To init the site oauth2 sessions
+from oauthlib.oauth2 import BackendApplicationClient
 
 
 class Site(object):
-    def __init__(self, client_ids: list, limit: int, timeout_sec: int):
-        self.balancer = SiteBalancer(client_ids, timeout_sec, limit)
+    def __init__(self, oauth_c_c: list, timeout_sec: int, limit: int):
+        self.balancer = SiteBalancer(oauth_c_c, timeout_sec, limit)
         self.limit = limit
         self.timeout_sec = timeout_sec
         self.last_pause_time = None
 
     def pause(self, pause_time):
-        if not pause_time and self.timeout_sec:
+        # if a specific pause_time isn't given then spread requests evenly over the timeout
+        if not pause_time and self.limit:
             pause_time = self.timeout_sec / self.limit
 
+        # only wait the diff between the time already elapsed and the pause_time if needed
         if self.last_pause_time:
             time_elapsed = datetime.datetime.now().second - self.last_pause_time
 
@@ -50,12 +57,11 @@ class Site(object):
         if pause:
             self.pause(pause_time)
 
-        # TODO: implement usage of the client ids when making this request
-        client_id = next(self.balancer)
+        client_credential = next(self.balancer)
 
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
         try:
-            response = requests.get(url, verify=False)
+            response = client_credential.oauth_session.get(url)
         except:
             print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n")
             raise requests.exceptions.ProxyError
@@ -70,3 +76,22 @@ class Site(object):
         soup = BeautifulSoup(html_doc, 'html.parser')
 
         return soup
+
+
+class Oauth2ClientCredential(object):
+    """
+    Example of backend workflow from https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
+
+    auth = HTTPBasicAuth(client_id, client_secret)
+    client = BackendApplicationClient(client_id=client_id)
+    oauth = OAuth2Session(client=client)
+    token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', auth=auth)
+
+    r = oauth.get('https://www.googleapis.com/oauth2/v1/userinfo')
+    """
+
+    def __init__(self, client_id: int, client_secret: str, token_url: str):
+        self.auth = HTTPBasicAuth(client_id, client_secret)
+        self.client = BackendApplicationClient(client_id=client_id)
+        self.oauth_session = OAuth2Session(client=self.client)
+        self.token = self.oauth_session.fetch_token(token_url=token_url, auth=self.auth)

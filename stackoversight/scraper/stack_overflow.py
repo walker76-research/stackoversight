@@ -8,16 +8,24 @@ import re
 import requests
 # For soup processing
 from bs4 import BeautifulSoup
+# For constructing credentials
+from stackoversight.scraper.site import Oauth2ClientCredential
 
 
 class StackOverflow(Site):
+    # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
     limit = 10000
     timeout_sec = 86400
+    token_url = 'https://stackoverflow.com/oauth/access_token'
 
-    def __init__(self, client_ids: list):
-        # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
-        # super(StackOverflow, self).__init__(client_ids, self.limit, self.timeout_sec)
-        super(StackOverflow, self).__init__(client_ids, 2, 60)
+    """
+        client_credentials must be a tuple with client_id first and client_secret second
+    """
+    def __init__(self, client_credentials: list):
+        oauth_c_c =\
+            [Oauth2ClientCredential(credential[0], credential[1], self.token_url) for credential in client_credentials]
+
+        super(StackOverflow, self).__init__(oauth_c_c, self.timeout_sec, self.limit)
 
     class Sorts(Enum):
         frequency = 'MostFrequent'
@@ -48,7 +56,7 @@ class StackOverflow(Site):
         question = 'questions'
 
     """
-        tags need to be a list!
+        tags needs to be a list!
     """
     def create_parent_link(self, category: Enum, tags=None, tab=None, sort=None, filter=None):
         url = 'https://stackoverflow.com/'
