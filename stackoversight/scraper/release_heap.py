@@ -31,7 +31,7 @@ class ReleaseHeap(object):
         # pop off the top of the heap and increment the first value of the pair
         pair = heapq.heappop(self.heap)
         pair[0] += 1
-        heapq.heappush(pair)
+        heapq.heappush(self.heap, pair)
 
         # put the value into the queue
         self.release_queue.put(pair[1])

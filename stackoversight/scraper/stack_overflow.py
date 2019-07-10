@@ -4,6 +4,10 @@ from stackoversight.scraper.site import Site
 from enum import Enum
 # Use regex to filter links
 import re
+# For proxy exception
+import requests
+# For soup processing
+from bs4 import BeautifulSoup
 
 
 class StackOverflow(Site):
@@ -39,6 +43,9 @@ class StackOverflow(Site):
     class Categories(Enum):
         question = 'questions'
 
+    """
+        tags need to be a list!
+    """
     def create_parent_link(self, category: Enum, tags=None, tab=None, sort=None, filter=None):
         url = 'https://stackoverflow.com/'
 
@@ -74,6 +81,11 @@ class StackOverflow(Site):
         # url from them
         links = [link.get('href') for link in parse_tree.find_all('a')]
 
+        # handle possible error
+        if not links:
+            print("The proxy is failing to pull from the site for some reason...")
+            raise requests.exceptions.ProxyError
+
         # filter to make sure only processing non empty links with question followed by a number and drop duplicates
         links = list(set(filter(re.compile('/questions/[0-9]').search, [link for link in links if link])))
 
@@ -82,15 +94,21 @@ class StackOverflow(Site):
         links = [precede + link if link.startswith('/') else link for link in links]
 
         # filter out those that are not on the same site as the parent url
-        links = [link for link in links if link.startswith(precede)]
+        return [link for link in links if link.startswith(precede)]
 
-        return links
+    def get_text(self, soup: BeautifulSoup):
+        try:
+            return [element.get_text() for element in soup.find_all(attrs={'class': 'post-text'})]
+        except:
+            # can fail when none are found
+            return []
 
-    def get_text(self, url: str, pause=False, sleep_max=5):
-        return self.get_by_tag_class(url, 'post-text', pause=pause, pause_time=sleep_max)
-
-    def get_code(self, url: str, pause=False, sleep_max=5):
-        return self.get_by_tag(url, 'code', pause=pause, pause_time=sleep_max)
+    def get_code(self, soup: BeautifulSoup):
+        try:
+            return [element.get_text() for element in soup.find_all('code')]
+        except:
+            # can fail when none are found
+            return []
 
     def get_category(self, url: str):
         return url.split('https://')[1].split('.')[0]

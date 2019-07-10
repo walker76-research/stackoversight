@@ -15,7 +15,7 @@ os.environ['HTTPS_PROXY'] = proxy
 client_ids = [15696, 15697]
 site = StackOverflow(client_ids)
 
-python_posts = site.create_parent_link(site.Categories.question, site.Tags.python, site.Tabs.frequent)
+python_posts = site.create_parent_link(site.Categories.question, [site.Tags.python], site.Tabs.frequent)
 
 print(python_posts)
 
@@ -23,8 +23,11 @@ child_links = site.get_child_links(python_posts)
 
 # for debug purposes
 for question in child_links:
-    for code in site.get_code(question):
+    print(question)
+    soup = site.get_parse_tree(question, pause=True, pause_time=1)
+
+    for code in site.get_code(soup):
         print(code)
 
-    for text in site.get_text(question):
+    for text in site.get_text(soup):
         print(text)

@@ -17,6 +17,12 @@ class Site(object):
         self.limit = limit
         self.timeout_sec = timeout_sec
 
+    def pause(self, pause_time):
+        if not pause_time and self.timeout_sec:
+            pause_time = self.limit / self.timeout_sec
+
+        sleep(pause_time)
+
     def create_parent_link(self, *args):
         raise NotImplementedError
 
@@ -32,64 +38,25 @@ class Site(object):
 
         # handle delay if set to spread out requests
         if pause:
-            if not pause_time and self.timeout_sec:
-                pause_time = self.limit / self.timeout_sec
-
-            sleep(pause_time)
+            self.pause(pause_time)
 
         # TODO: implement usage of the client ids when making this request
-        client_id = next(SiteBalancer)
+        client_id = next(self.balancer)
+
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
-        response = requests.get(url, verify=False)
+        try:
+            response = requests.get(url, verify=False)
+        except:
+            print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n")
+            raise requests.exceptions.ProxyError
+
         # mark the request as being made
         self.balancer.capture()
 
         # TODO: could potentially split things from here on out to another thread so that one is purely requesting
         #  and another is handling parsing the html doc
         html_doc = response.text
-        # make a navigable parse tree so that we can find our way around the html doc
+        # return a navigable parse tree so that we can find our way around the html doc
         parse_tree = BeautifulSoup(html_doc, 'html.parser')
 
         return parse_tree
-
-    def get_by_(self, source, pause=False, pause_time=5):
-        if isinstance(source, str):
-            parse_tree = self.get_parse_tree(source, pause, pause_time)
-        elif isinstance(source, BeautifulSoup):
-            parse_tree = source
-        else:
-            raise TypeError
-
-        return parse_tree
-
-    def get_by_tag_class(self, source, tag_class: str, get_all=True, pause=False, pause_time=5):
-        source = self.get_by_(source, pause, pause_time)
-
-        # to get element need to use the tag's class to specify, and not the tag itself
-        try:
-            # handle whether to get all or just the first post, which will be the question
-            if get_all:
-                content = [element.get_text() for element in source.find_all(attrs={'class': tag_class})]
-            else:
-                content = [source.find(attrs={'class': tag_class}).get_text()]
-        except:
-            # sometimes there wont be any matching tags
-            return None
-
-        return content
-
-    def get_by_tag(self, source, tag: str, get_all=True, pause=False, pause_time=5):
-        source = self.get_by_(source, pause, pause_time)
-
-        # to get code need to use the tag
-        try:
-            # handle whether to get all or just the first post, which will be the question
-            if get_all:
-                content = [element.get_text() for element in source.find_all(tag)]
-            else:
-                content = [source.find(tag).get_text()]
-        except:
-            # sometimes there wont be any matching tags
-            return None
-
-        return content
