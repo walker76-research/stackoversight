@@ -19,12 +19,12 @@ python_posts = site.create_parent_link(site.Categories.question, [site.Tags.pyth
 
 print(python_posts)
 
-child_links = site.get_child_links(python_posts)
+child_links = site.get_child_links(python_posts, pause=True)
 
 # for debug purposes
 for question in child_links:
     print(question)
-    soup = site.get_soup(question, pause=True, pause_time=1)
+    soup = site.get_soup(question, pause=True)
 
     for code in site.get_code(soup):
         print(code)
@@ -33,5 +33,3 @@ for question in child_links:
         print(text)
 
 print(site.balancer.heap)
-
-# TODO: test release timer threads

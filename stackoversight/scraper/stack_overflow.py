@@ -11,9 +11,12 @@ from bs4 import BeautifulSoup
 
 
 class StackOverflow(Site):
+    limit = 10000
+    timeout_sec = 86400
+
     def __init__(self, client_ids: list):
         # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
-        # 86400s : 24hr
+        # super(StackOverflow, self).__init__(client_ids, self.limit, self.timeout_sec)
         super(StackOverflow, self).__init__(client_ids, 2, 10)
 
     class Sorts(Enum):
@@ -75,8 +78,8 @@ class StackOverflow(Site):
 
         return url
 
-    def get_child_links(self, parent_link: str):
-        soup = self.get_soup(parent_link)
+    def get_child_links(self, parent_link: str, pause=False, pause_time=None):
+        soup = self.get_soup(parent_link, pause, pause_time)
 
         # search the parse tree for all with the <a> tag, which is for a hyperlink and use the href tag to get the
         # url from them
