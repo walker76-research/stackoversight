@@ -13,7 +13,8 @@ from bs4 import BeautifulSoup
 class StackOverflow(Site):
     def __init__(self, client_ids: list):
         # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
-        super(StackOverflow, self).__init__(client_ids, 9999, 86400)
+        # 86400s : 24hr
+        super(StackOverflow, self).__init__(client_ids, 2, 10)
 
     class Sorts(Enum):
         frequency = 'MostFrequent'

@@ -31,3 +31,7 @@ for question in child_links:
 
     for text in site.get_text(soup):
         print(text)
+
+print(site.balancer.heap)
+
+# TODO: test release timer threads
