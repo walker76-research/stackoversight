@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 # For nap time if were nice to the process and the site
 from time import sleep
 # For site request limit management
+import datetime
+
 from stackoversight.scraper.site_balancer import SiteBalancer
 
 
@@ -15,12 +17,21 @@ class Site(object):
         self.balancer = SiteBalancer(client_ids, timeout_sec, limit)
         self.limit = limit
         self.timeout_sec = timeout_sec
+        self.last_pause_time = None
 
     def pause(self, pause_time):
         if not pause_time and self.timeout_sec:
-            pause_time = self.limit / self.timeout_sec
+            pause_time = self.timeout_sec / self.limit
 
-        sleep(pause_time)
+        if self.last_pause_time:
+            time_elapsed = datetime.datetime.now().second - self.last_pause_time
+
+            if time_elapsed < pause_time:
+                sleep(pause_time - time_elapsed)
+                self.last_pause_time = datetime.datetime.now().second
+        else:
+            sleep(pause_time)
+            self.last_pause_time = datetime.datetime.now().second
 
     def create_parent_link(self, *args):
         raise NotImplementedError

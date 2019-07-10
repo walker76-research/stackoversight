@@ -17,7 +17,7 @@ class StackOverflow(Site):
     def __init__(self, client_ids: list):
         # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
         # super(StackOverflow, self).__init__(client_ids, self.limit, self.timeout_sec)
-        super(StackOverflow, self).__init__(client_ids, 2, 10)
+        super(StackOverflow, self).__init__(client_ids, 2, 60)
 
     class Sorts(Enum):
         frequency = 'MostFrequent'
