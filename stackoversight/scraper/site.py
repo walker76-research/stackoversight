@@ -10,7 +10,6 @@ from time import sleep
 from stackoversight.scraper.site_balancer import SiteBalancer
 
 
-# noinspection PyTypeChecker
 class Site(object):
     def __init__(self, client_ids: list, limit: int, timeout_sec: int):
         self.balancer = SiteBalancer(client_ids, timeout_sec, limit)
@@ -29,7 +28,7 @@ class Site(object):
     def get_child_links(self, *args):
         raise NotImplementedError
 
-    def get_parse_tree(self, url: str, pause=False, pause_time=None):
+    def get_soup(self, url: str, pause=False, pause_time=None):
         # TODO: Set this up to wait on a signal from a timer thread so that it isn't a busy wait
         # get the next id to use or wait until one is ready
         while not self.balancer.is_ready():
@@ -57,6 +56,6 @@ class Site(object):
         #  and another is handling parsing the html doc
         html_doc = response.text
         # return a navigable parse tree so that we can find our way around the html doc
-        parse_tree = BeautifulSoup(html_doc, 'html.parser')
+        soup = BeautifulSoup(html_doc, 'html.parser')
 
-        return parse_tree
+        return soup

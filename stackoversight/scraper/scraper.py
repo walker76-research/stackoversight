@@ -24,7 +24,7 @@ child_links = site.get_child_links(python_posts)
 # for debug purposes
 for question in child_links:
     print(question)
-    soup = site.get_parse_tree(question, pause=True, pause_time=1)
+    soup = site.get_soup(question, pause=True, pause_time=1)
 
     for code in site.get_code(soup):
         print(code)

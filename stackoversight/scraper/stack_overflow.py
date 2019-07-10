@@ -75,11 +75,11 @@ class StackOverflow(Site):
         return url
 
     def get_child_links(self, parent_link: str):
-        parse_tree = self.get_parse_tree(parent_link)
+        soup = self.get_soup(parent_link)
 
         # search the parse tree for all with the <a> tag, which is for a hyperlink and use the href tag to get the
         # url from them
-        links = [link.get('href') for link in parse_tree.find_all('a')]
+        links = [link.get('href') for link in soup.find_all('a')]
 
         # handle possible error
         if not links:
