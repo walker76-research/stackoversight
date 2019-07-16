@@ -9,7 +9,7 @@ from time import sleep
 # For site request limit management
 import datetime
 # For balancing client requests to the site
-from stackoversight.scraper.site_balancer import SiteBalancer
+from site_balancer import SiteBalancer
 # For authentication and to send requests
 from requests_oauthlib import OAuth2Session
 # To init the site oauth2 sessions
@@ -47,6 +47,9 @@ class Site(object):
     def get_child_links(self, *args):
         raise NotImplementedError
 
+    def handle_request(self, url):
+        raise NotImplementedError
+
     def get_soup(self, url: str, pause=False, pause_time=None):
         # handle delay if set to spread out requests
         if pause:
@@ -62,6 +65,7 @@ class Site(object):
 
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
         try:
+            self.handle_request(url)
             response = client_credential.oauth_session.get(url)
         except:
             print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n"

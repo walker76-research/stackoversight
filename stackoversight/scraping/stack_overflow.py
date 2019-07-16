@@ -107,6 +107,9 @@ class StackOverflow(Site):
         # filter out those that are not on the same site as the parent url
         return [link for link in links if link.startswith(precede)]
 
+    def handle_request(self, url):
+        return requests.get(url)
+
     def get_text(self, soup: BeautifulSoup):
         try:
             return [element.get_text() for element in soup.find_all(attrs={'class': 'post-text'})]
