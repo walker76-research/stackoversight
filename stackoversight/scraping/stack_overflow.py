@@ -1,5 +1,5 @@
 # For basic Site class
-from stackoversight.scraper.site import Site
+from stackoversight.scraping.site import Site
 # For site tags and sorts
 from enum import Enum
 # Use regex to filter links
@@ -8,23 +8,19 @@ import re
 import requests
 # For soup processing
 from bs4 import BeautifulSoup
-# For constructing credentials
-from stackoversight.scraper.site import Oauth2ClientCredential
+# Need that mutable tuple my dude
+from recordclass.mutabletuple import mutabletuple
 
 
 class StackOverflow(Site):
     # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
-    limit = 10000
+    limit = None
     timeout_sec = 86400
-    token_url = 'https://stackoverflow.com/oauth/access_token'
 
-    """
-        client_credentials must be a list of HTTPBasicAuth
-    """
-    def __init__(self, client_auths: list):
-        client_credentials = [Oauth2ClientCredential(auth, self.token_url) for auth in client_auths]
+    def __init__(self, client_keys: list):
+        sessions = [self.init_key(key) for key in client_keys]
 
-        super(StackOverflow, self).__init__(client_credentials, self.timeout_sec, self.limit)
+        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
     class Sorts(Enum):
         frequency = 'MostFrequent'
@@ -57,7 +53,8 @@ class StackOverflow(Site):
     """
         tags needs to be a list!
     """
-    def create_parent_link(self, category: Enum, tags=None, tab=None, sort=None, filter=None):
+    @staticmethod
+    def create_parent_link(category: Enum, tags=None, tab=None, sort=None, filter=None):
         url = 'https://stackoverflow.com/'
 
         if category:
@@ -107,25 +104,38 @@ class StackOverflow(Site):
         # filter out those that are not on the same site as the parent url
         return [link for link in links if link.startswith(precede)]
 
-    def handle_request(self, url):
-        return requests.get(url)
+    def handle_request(self, url: str, session: str):
+        return requests.get(url + '&key=' + session)
 
-    def get_text(self, soup: BeautifulSoup):
+    @staticmethod
+    def get_text(soup: BeautifulSoup):
         try:
             return [element.get_text() for element in soup.find_all(attrs={'class': 'post-text'})]
         except:
             # can fail when none are found
             return []
 
-    def get_code(self, soup: BeautifulSoup):
+    @staticmethod
+    def get_code(soup: BeautifulSoup):
         try:
             return [element.get_text() for element in soup.find_all('code')]
         except:
             # can fail when none are found
             return []
 
-    def get_category(self, url: str):
+    @staticmethod
+    def get_category(url: str):
         return url.split('https://')[1].split('.')[0]
 
+    @staticmethod
     def get_id(self, url: str):
         return url.split('/')[4]
+
+    def init_key(self, key: str):
+        response = requests.get('https://api.stackexchange.com/2.2/info?site=stackoverflow' + '&key=' + key)
+        response = response.json()
+
+        if not self.limit:
+            self.limit = response['quota_max']
+
+        return mutabletuple(self.limit - response['quota_remaining'], key)

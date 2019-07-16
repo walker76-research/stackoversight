@@ -9,18 +9,12 @@ from time import sleep
 # For site request limit management
 import datetime
 # For balancing client requests to the site
-from site_balancer import SiteBalancer
-# For authentication and to send requests
-from requests_oauthlib import OAuth2Session
-# To init the site oauth2 sessions
-from oauthlib.oauth2 import BackendApplicationClient
-# For client_credential objects
-from requests.auth import HTTPBasicAuth
+from stackoversight.scraping.site_balancer import SiteBalancer
 
 
 class Site(object):
-    def __init__(self, client_credentials: list, timeout_sec: int, limit: int):
-        self.balancer = SiteBalancer(client_credentials, timeout_sec, limit)
+    def __init__(self, sessions: list, timeout_sec: int, limit: int):
+        self.balancer = SiteBalancer(sessions, timeout_sec, limit)
         self.limit = limit
         self.timeout_sec = timeout_sec
         self.last_pause_time = None
@@ -47,7 +41,7 @@ class Site(object):
     def get_child_links(self, *args):
         raise NotImplementedError
 
-    def handle_request(self, url):
+    def handle_request(self, url, session):
         raise NotImplementedError
 
     def get_soup(self, url: str, pause=False, pause_time=None):
@@ -61,12 +55,11 @@ class Site(object):
             sleep(1)
             print(":(")
 
-        client_credential = next(self.balancer)
+        session = next(self.balancer)
 
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
         try:
-            self.handle_request(url)
-            response = client_credential.oauth_session.get(url)
+            response = self.handle_request(url, session)
         except:
             print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n"
                   "Could also be an issue with your token?")
@@ -82,37 +75,3 @@ class Site(object):
         soup = BeautifulSoup(html_doc, 'html.parser')
 
         return soup
-
-
-class Oauth2ClientCredential(object):
-    """
-    Example of backend workflow from https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html
-
-    from oauthlib.oauth2 import BackendApplicationClient
-    client = BackendApplicationClient(client_id=client_id)
-    oauth = OAuth2Session(client=client)
-    token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
-        client_secret=client_secret)
-
-    If your provider requires that you pass auth credentials in a Basic Auth header, you can do this instead:
-
-    from oauthlib.oauth2 import BackendApplicationClient
-    from requests.auth import HTTPBasicAuth
-    auth = HTTPBasicAuth(client_id, client_secret)
-    client = BackendApplicationClient(client_id=client_id)
-    oauth = OAuth2Session(client=client)
-    token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', auth=auth)
-
-    r = oauth.get('https://www.googleapis.com/oauth2/v1/userinfo')
-    """
-
-    def __init__(self, client_auth: HTTPBasicAuth, token_url: str):
-        self.auth = client_auth
-        self.client = BackendApplicationClient(client_id=client_auth.username)
-        self.oauth_session = OAuth2Session(client=self.client)
-        self.token = self.oauth_session.fetch_token(token_url=token_url, auth=self.auth)
-
-    def __lt__(self, other):
-        if not isinstance(other, Oauth2ClientCredential):
-            raise TypeError
-        return self.auth.username < other.auth.username

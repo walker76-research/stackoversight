@@ -1,9 +1,7 @@
 # To set the http_proxy environment variable
 import os
 # For making the site requests and overall request management
-from stackoversight.scraper.stack_overflow import StackOverflow
-
-import requests
+from stackoversight.scraping.stack_overflow import StackOverflow
 
 # address of the proxy server
 proxy = 'http://localhost:5050'
@@ -14,10 +12,7 @@ proxy = 'http://localhost:5050'
 # os.environ['https_proxy'] = proxy
 # os.environ['HTTPS_PROXY'] = proxy
 
-client_keys = ['RGaU7lYPN8L5KbnIfkxmGQ((',
-                'RGaU7lYPN8L5KbnIfkxmGQ((']
-
-requests.get('https://api.stackexchange.com/2.2/info?site=stackoverflow&key=RGaU7lYPN8L5KbnIfkxmGQ((')
+client_keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
 
 site = StackOverflow(client_keys)
 
@@ -35,7 +30,7 @@ for question in child_links:
     for code in site.get_code(soup):
         print(code)
 
-    for text in site.get_text(soup):
-        print(text)
+    # for text in site.get_text(soup):
+    #     print(text)
 
 print(site.balancer.heap)
