@@ -18,20 +18,38 @@ class Site(object):
         self.limit = limit
         self.timeout_sec = timeout_sec
         self.last_pause_time = None
+        self.back_off = 0
 
     def pause(self, pause_time):
-        # if a specific pause_time isn't given then spread requests evenly over the timeout
         if not pause_time and self.limit:
+            # try to evenly spread the requests out by default
             pause_time = self.timeout_sec / self.limit
 
-        # only wait the diff between the time already elapsed and the pause_time if needed
+        # this is the minimum wait between requests to not be throttled
+        min_pause = self.get_min_pause()
+        if pause_time < min_pause:
+            pause_time = min_pause
+
+        # can not wait less than the back off field if it is set
+        if pause_time < self.back_off:
+            pause_time = self.back_off
+
+            # returns the field to zero as it should be set only each time it is returned by the api
+            self.back_off = 0
+
+        # only wait the diff between the time already elapsed from the last request and the pause_time
         if self.last_pause_time:
             time_elapsed = datetime.datetime.now().second - self.last_pause_time
 
+            # if the elapsed time is longer then no need to wait
             if time_elapsed < pause_time:
-                sleep(pause_time - time_elapsed)
+                pause_time -= time_elapsed
+
+                # sleep and update the last_pause_time
+                sleep(pause_time)
                 self.last_pause_time = datetime.datetime.now().second
         else:
+            # initialize the last_pause_time field and sleep the full pause_time
             sleep(pause_time)
             self.last_pause_time = datetime.datetime.now().second
 
@@ -44,11 +62,10 @@ class Site(object):
     def handle_request(self, url, session):
         raise NotImplementedError
 
-    def get_soup(self, url: str, pause=False, pause_time=None):
-        # handle delay if set to spread out requests
-        if pause:
-            self.pause(pause_time)
+    def get_min_pause(self):
+        raise NotImplementedError
 
+    def get_soup(self, url: str, pause=False, pause_time=None):
         # TODO: Set this up to wait on a signal from a timer thread so that it isn't a busy wait
         # get the next id to use or wait until one is ready
         while not self.balancer.is_ready():
@@ -56,6 +73,10 @@ class Site(object):
             print(":(")
 
         session = next(self.balancer)
+
+        # handle delay if set to spread out requests
+        if pause:
+            self.pause(pause_time)
 
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
         try:

@@ -16,6 +16,8 @@ class StackOverflow(Site):
     # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
     limit = None
     timeout_sec = 86400
+    min_pause = 1/30
+    stack_api_version = '2.2'
 
     def __init__(self, client_keys: list):
         sessions = [self.init_key(key) for key in client_keys]
@@ -50,15 +52,35 @@ class StackOverflow(Site):
     class Categories(Enum):
         question = 'questions'
 
+    def get_min_pause(self):
+        return self.min_pause
+
     """
         tags needs to be a list!
     """
-    @staticmethod
-    def create_parent_link(category: Enum, tags=None, tab=None, sort=None, filter=None):
-        url = 'https://stackoverflow.com/'
+    def create_parent_link(self, category: Enum, tags=None, tab=None, sort=None, filter=None):
+        url = 'https://api.stackexchange.com/' + self.stack_api_version +'/'
+
+        # order
+
+        # sort
+
+        # tab
+
+        # min
+
+        # fromdate
+
+        # todate
+
+        # site
+
+        # page_size
+
+        # page
 
         if category:
-            url += category.value
+            url += category.value + '?'
 
         if tags:
             url += '/tagged/'
@@ -79,6 +101,8 @@ class StackOverflow(Site):
 
         if tab or sort or filter:
             url += '&edited=true'
+
+        url += '&page_size=100'
 
         return url
 
