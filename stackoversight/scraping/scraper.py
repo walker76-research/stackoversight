@@ -16,7 +16,8 @@ client_keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
 
 site = StackOverflow(client_keys)
 
-python_posts = site.create_parent_link(site.Categories.question, [site.Tags.python], site.Tabs.frequent)
+python_posts = site.create_parent_link(sort=site.Sorts.votes, order=site.Orders.descending, tag=site.Tags.python,
+                                       page_size=100)
 
 print(python_posts)
 

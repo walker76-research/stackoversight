@@ -16,93 +16,66 @@ class StackOverflow(Site):
     # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
     limit = None
     timeout_sec = 86400
-    min_pause = 1/30
-    stack_api_version = '2.2'
+    min_pause = 1 / 30
+    api_version = '2.2'
+    page_size = 100
+    api_url = 'https://api.stackexchange.com'
+    site = 'stackoverflow'
 
     def __init__(self, client_keys: list):
         sessions = [self.init_key(key) for key in client_keys]
 
         super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
+    prefixes = {'sort': 'sort',
+                'order': 'order',
+                'tag': 'tagged',
+                'page': 'page',
+                'page_size': 'pagesize',
+                'from_date': 'fromdate',
+                'to_date': 'todate',
+                'max': 'max',
+                'min': 'min',
+                'site': 'site',
+                'key': 'key'}
+
+    class Categories(Enum):
+        question = 'questions?'
+        user = 'users?'
+        info = 'info?'
+
     class Sorts(Enum):
-        frequency = 'MostFrequent'
-        bounty = 'BountyEndingSoon'
-        vote = 'MostVotes'
-        recent = 'RecentActivity'
-        newest = 'Newest'
+        activity = 'activity'
+        votes = 'votes'
+        creation = 'creation'
+        hot = 'hot'
+        week = 'week'
+        month = 'month'
 
-    class Filters(Enum):
-        unanswered = 'NoAnswers'
-        unaccepted = 'NoAcceptedAnswer'
-        bounty = 'Bounty'
-
-    class Tabs(Enum):
-        newest = 'Newest'
-        active = 'Active'
-        bounty = 'Bounties'
-        unanswered = 'Unanswered'
-        frequent = 'Frequent'
-        vote = 'Votes'
+    class Orders(Enum):
+        ascending = 'asc'
+        descending = 'desc'
 
     class Tags(Enum):
         python = 'python'
         python2 = 'python-2.7'
         python3 = 'python-3.x'
 
-    class Categories(Enum):
-        question = 'questions'
-
     def get_min_pause(self):
         return self.min_pause
 
-    """
-        tags needs to be a list!
-    """
-    def create_parent_link(self, category: Enum, tags=None, tab=None, sort=None, filter=None):
-        url = 'https://api.stackexchange.com/' + self.stack_api_version +'/'
+    def create_parent_link(self, category=Categories.question, **kwargs):
+        url = f'{self.api_url}/{self.api_version}/{category}'
 
-        # order
+        url_fields = ''
+        for key, value in kwargs:
+            if key in self.prefixes:
+                if url_fields:
+                    url_fields += '&'
 
-        # sort
+                url_fields += f'{self.prefixes[key]}={value}'
 
-        # tab
-
-        # min
-
-        # fromdate
-
-        # todate
-
-        # site
-
-        # page_size
-
-        # page
-
-        if category:
-            url += category.value + '?'
-
-        if tags:
-            url += '/tagged/'
-
-            for tag in tags:
-                url += tag.value + '%20'
-
-        if url.endswith('%20'):
-            url = url[:-3]
-
-        if tab:
-            url += '/?tab=' + tab.value
-        elif sort:
-            url += '/?sort=' + sort.value
-
-        if filter:
-            url += '&filters=' + filter.value
-
-        if tab or sort or filter:
-            url += '&edited=true'
-
-        url += '&page_size=100'
+        url += url_fields + f'{self.prefixes["site"]}{self.site}'
 
         return url
 
@@ -128,8 +101,8 @@ class StackOverflow(Site):
         # filter out those that are not on the same site as the parent url
         return [link for link in links if link.startswith(precede)]
 
-    def handle_request(self, url: str, session: str):
-        return requests.get(url + '&key=' + session)
+    def handle_request(self, url: str, key: str):
+        return requests.get(f'{url}&{self.prefixes["key"]}={key}')
 
     @staticmethod
     def get_text(soup: BeautifulSoup):
@@ -156,9 +129,11 @@ class StackOverflow(Site):
         return url.split('/')[4]
 
     def init_key(self, key: str):
-        response = requests.get('https://api.stackexchange.com/2.2/info?site=stackoverflow' + '&key=' + key)
+        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info}{self.prefixes["site"]}='
+                                f'{self.site}&{self.prefixes["key"]}={key}')
         response = response.json()
 
+        # TODO: pull and use more info from this response
         if not self.limit:
             self.limit = response['quota_max']
 

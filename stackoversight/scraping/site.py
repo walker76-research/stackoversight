@@ -81,6 +81,8 @@ class Site(object):
         # grab some questions, need to set verify to false otherwise will get an error with the tls certificate
         try:
             response = self.handle_request(url, session)
+
+            # TODO: get info like back_off and such from the response here!!
         except:
             print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n"
                   "Could also be an issue with your token?")
