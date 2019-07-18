@@ -1,3 +1,7 @@
+oauthlib
+requests_oauthlib
+recordclass
+requests
 stackapi
 beautifulsoup4
 redis
