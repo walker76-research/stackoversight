@@ -26,12 +26,12 @@ child_links = site.get_child_links(python_posts, pause=True)
 # for debug purposes
 for question in child_links:
     print(question)
-    soup = site.get_soup(question, pause=True)
+    response = site.process_request(question, pause=True)[0]
 
-    for code in site.get_code(soup):
+    for code in site.get_code(response):
         print(code)
 
-    # for text in site.get_text(soup):
-    #     print(text)
+    for text in site.get_text(response):
+        print(text)
 
 print(site.balancer.heap)

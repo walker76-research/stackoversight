@@ -2,17 +2,14 @@
 from stackoversight.scraping.site import Site
 # For site tags and sorts
 from enum import Enum
-# Use regex to filter links
-import re
 # For proxy exception
 import requests
-# For soup processing
-from bs4 import BeautifulSoup
 # Need that mutable tuple my dude
 from recordclass.mutabletuple import mutabletuple
 
 
 class StackOverflow(Site):
+    # TODO: clean up fields, ie site and stack_overflow shouldn't both have a limit field...
     # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
     limit = None
     timeout_sec = 86400
@@ -79,64 +76,53 @@ class StackOverflow(Site):
 
         return url + url_fields
 
+    # TODO: this is all now broken :( will need to fix to adapt to the response from stackexchange API
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
-        soup = self.get_soup(parent_link, pause, pause_time)
+        response = self.process_request(parent_link, pause, pause_time)
+        key = response[1]
+        request_count = response[2]
+        response = response[0].json()
 
-        # TODO: this is all now broken :( will need to fix to adapt to the response from stackexchange API
+        # TODO: get info like back_off and such from the response here!!
+        has_more = response['has_more']
+        quota_max = response['quota_max']
+        quota_remaining = response['quota_remaining']
+        links = [item['link'] for item in response['items']]
 
-        # search the parse tree for all with the <a> tag, which is for a hyperlink and use the href tag to get the
-        # url from them
-        links = [link.get('href') for link in soup.find_all('a')]
+        if quota_max - quota_remaining != request_count:
+            print(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
+            # raise ValueError
 
-        # handle possible error
         if not links:
-            print("The proxy is up but it is failing to pull from the site.")
+            print('The proxy is up but it is failing to pull from the site.')
             raise requests.exceptions.ProxyError
 
-        # filter to make sure only processing non empty links with question followed by a number and drop duplicates
-        links = list(set(filter(re.compile('/questions/[0-9]').search, [link for link in links if link])))
+        # TODO: catch back_off field and set it
 
-        # insert preceding url section if needed
-        precede = parent_link.split('/questions/')[0]
-        links = [precede + link if link.startswith('/') else link for link in links]
+        return links
 
-        # filter out those that are not on the same site as the parent url
-        return [link for link in links if link.startswith(precede)]
-
+    # as a hook for future needs
     def handle_request(self, url: str, key: str):
         return requests.get(f'{url}&{self.prefixes["key"]}={key}')
 
     @staticmethod
-    def get_text(soup: BeautifulSoup):
+    def get_text(response: requests.Response):
         try:
-            return [element.get_text() for element in soup.find_all(attrs={'class': 'post-text'})]
+            return [element.get_text() for element in Site.cook_soup(response).find_all(attrs={'class': 'post-text'})]
         except:
             # can fail when none are found
             return []
 
     @staticmethod
-    def get_code(soup: BeautifulSoup):
+    def get_code(response: requests.Response):
         try:
-            return [element.get_text() for element in soup.find_all('code')]
+            return [element.get_text() for element in Site.cook_soup(response).find_all('code')]
         except:
             # can fail when none are found
             return []
-
-    @staticmethod
-    def get_category(url: str):
-        return url.split('https://')[1].split('.')[0]
-
-    @staticmethod
-    def get_id(self, url: str):
-        return url.split('/')[4]
 
     def init_key(self, key: str):
         response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info.value}{self.prefixes["site"]}'
-                                f'={self.site}&{self.prefixes["key"]}={key}')
-        response = response.json()
-
-        # TODO: pull and use more info from this response
-        if not self.limit:
-            self.limit = response['quota_max']
+                                f'={self.site}&{self.prefixes["key"]}={key}').json()
 
         return mutabletuple(self.limit - response['quota_remaining'], key)

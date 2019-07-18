@@ -39,6 +39,8 @@ class ReleaseHeap(object):
         # start the timer for release
         threading.Timer(self.time_sec, self.release).start()
 
+        return pair[0]
+
     def release(self):
         # get the id of the next to be released and with that the pair
         top_value = self.release_queue.get()
