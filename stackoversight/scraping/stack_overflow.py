@@ -18,19 +18,20 @@ class StackOverflow(Site):
     page_size = 100
     limit = 10000
 
-    prefixes = {'sort': 'sort',
-                'order': 'order',
-                'tag': 'tagged',
-                'page': 'page',
-                'page_size': 'pagesize',
-                'from_date': 'fromdate',
-                'to_date': 'todate',
-                'max': 'max',
-                'min': 'min',
-                'site': 'site',
-                'key': 'key'}
+    fields = {'sort': 'sort',
+              'order': 'order',
+              'tag': 'tagged',
+              'page': 'page',
+              'page_size': 'pagesize',
+              'from_date': 'fromdate',
+              'to_date': 'todate',
+              'max': 'max',
+              'min': 'min',
+              'site': 'site',
+              'key': 'key',
+              'back_off': 'backoff'}
 
-    class Categories(Enum):
+    class Methods(Enum):
         question = 'questions?'
         user = 'users?'
         info = 'info?'
@@ -61,18 +62,18 @@ class StackOverflow(Site):
     def get_min_pause(self):
         return self.min_pause
 
-    def create_parent_link(self, category=Categories.question.value, **kwargs):
+    def create_parent_link(self, category=Methods.question.value, **kwargs):
         url = f'{self.api_url}/{self.api_version}/{category}'
 
         kwargs['site'] = self.site
 
         url_fields = ''
         for key in kwargs:
-            if key in self.prefixes:
+            if key in self.fields:
                 if url_fields:
                     url_fields += '&'
 
-                url_fields += f'{self.prefixes[key]}={kwargs[key]}'
+                url_fields += f'{self.fields[key]}={kwargs[key]}'
 
         return url + url_fields
 
@@ -95,20 +96,21 @@ class StackOverflow(Site):
             print('The proxy is up but it is failing to pull from the site.')
             raise requests.exceptions.ProxyError
 
-        # TODO: catch back_off field and set it, implementation for wait is already done
+        if self.fields['back_off'] in response:
+            self.back_off = response[self.fields['back_off']]
 
         return links, has_more
 
     # as a hook for future needs
     def handle_request(self, url: str, key: str):
-        url = f'{url}&{self.prefixes["key"]}={key}'
+        url = f'{url}&{self.fields["key"]}={key}'
         self.req_table.add(url)
 
         return requests.get(url)
 
     def init_key(self, key: str):
-        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info.value}{self.prefixes["site"]}'
-                                f'={self.site}&{self.prefixes["key"]}={key}').json()
+        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Methods.info.value}{self.fields["site"]}'
+                                f'={self.site}&{self.fields["key"]}={key}').json()
 
         if response['quota_max'] != self.limit:
             raise ValueError

@@ -1,5 +1,3 @@
-# Credit to Ben Shaver for his guide on scraping stackoverflow
-
 # For the proxy error and the cook_soup type specification
 import requests
 # For nap time if we're nice to the process and the site
