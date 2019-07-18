@@ -39,7 +39,11 @@ python_posts = stack_overflow.create_parent_link(sort=stack_overflow.Sorts.votes
 print(python_posts)
 
 link_queue = Queue()
-threading.Thread(target=scrape_parent_link, args=(python_posts, stack_overflow, link_queue))
+api_thread = threading.Thread(target=scrape_parent_link, args=(python_posts, stack_overflow, link_queue))
+api_thread.start()
+
+code_file = open("code.txt", "w+")
+text_file = open("file.txt", "w+")
 
 # for debug purposes
 while True:
@@ -50,11 +54,13 @@ while True:
         response = stack_overflow.process_request(link, pause=True)[0]
 
         for code in stack_overflow.get_code(response):
-            # pickle the code
-            print(code)
+            code_file.write(code)
 
         for text in stack_overflow.get_text(response):
-            # pickle the text
-            print(text)
+            text_file.write(text)
 
-    print(stack_overflow.balancer.heap)
+    if not stack_overflow.balancer.is_ready():
+        break
+
+code_file.close()
+text_file.close()
