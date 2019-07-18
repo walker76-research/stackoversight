@@ -22,6 +22,8 @@ python_posts = site.create_parent_link(sort=site.Sorts.votes.value, order=site.O
 print(python_posts)
 
 child_links = site.get_child_links(python_posts, pause=True)
+has_more = child_links[1]
+child_links = child_links[0]
 
 # for debug purposes
 for question in child_links:

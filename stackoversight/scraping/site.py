@@ -14,11 +14,13 @@ from stackoversight.scraping.site_balancer import SiteBalancer
 
 class Site(object):
     def __init__(self, sessions: list, timeout_sec: int, limit: int):
-        self.balancer = SiteBalancer(sessions, timeout_sec, limit)
         self.limit = limit
         self.timeout_sec = timeout_sec
+
         self.last_pause_time = None
         self.back_off = 0
+
+        self.balancer = SiteBalancer(sessions, timeout_sec, limit)
 
     def pause(self, pause_time):
         if not pause_time and self.limit:
@@ -44,14 +46,12 @@ class Site(object):
             # if the elapsed time is longer then no need to wait
             if time_elapsed < pause_time:
                 pause_time -= time_elapsed
+            else:
+                pause_time = 0
 
-                # sleep and update the last_pause_time
-                sleep(pause_time)
-                self.last_pause_time = time.time()
-        else:
-            # initialize the last_pause_time field and sleep the full pause_time
-            sleep(pause_time)
-            self.last_pause_time = time.time()
+        # initialize the last_pause_time field and sleep
+        sleep(pause_time)
+        self.last_pause_time = time.time()
 
         return self.last_pause_time
 
@@ -72,7 +72,7 @@ class Site(object):
         # get the next id to use or wait until one is ready
         while not self.balancer.is_ready():
             sleep(1)
-            print(":(")
+            print("Waiting...")
 
         key = next(self.balancer)
 

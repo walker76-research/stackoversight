@@ -9,20 +9,14 @@ from recordclass.mutabletuple import mutabletuple
 
 
 class StackOverflow(Site):
-    # TODO: clean up fields, ie site and stack_overflow shouldn't both have a limit field...
-    # Stack Overflow limits each client id to 10000 requests per day, the timeout parameter is in seconds
-    limit = None
+    site = 'stackoverflow'
+    api_url = 'https://api.stackexchange.com'
+    api_version = '2.2'
+
     timeout_sec = 86400
     min_pause = 1 / 30
-    api_version = '2.2'
     page_size = 100
-    api_url = 'https://api.stackexchange.com'
-    site = 'stackoverflow'
-
-    def __init__(self, client_keys: list):
-        sessions = [self.init_key(key) for key in client_keys]
-
-        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
+    limit = 10000
 
     prefixes = {'sort': 'sort',
                 'order': 'order',
@@ -58,6 +52,12 @@ class StackOverflow(Site):
         python2 = 'python-2.7'
         python3 = 'python-3.x'
 
+    def __init__(self, client_keys: list):
+        sessions = [self.init_key(key) for key in client_keys]
+        self.req_table = set()
+
+        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
+
     def get_min_pause(self):
         return self.min_pause
 
@@ -76,14 +76,12 @@ class StackOverflow(Site):
 
         return url + url_fields
 
-    # TODO: this is all now broken :( will need to fix to adapt to the response from stackexchange API
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
         key = response[1]
         request_count = response[2]
         response = response[0].json()
 
-        # TODO: get info like back_off and such from the response here!!
         has_more = response['has_more']
         quota_max = response['quota_max']
         quota_remaining = response['quota_remaining']
@@ -97,13 +95,25 @@ class StackOverflow(Site):
             print('The proxy is up but it is failing to pull from the site.')
             raise requests.exceptions.ProxyError
 
-        # TODO: catch back_off field and set it
+        # TODO: catch back_off field and set it, implementation for wait is already done
 
-        return links
+        return links, has_more
 
     # as a hook for future needs
     def handle_request(self, url: str, key: str):
-        return requests.get(f'{url}&{self.prefixes["key"]}={key}')
+        url = f'{url}&{self.prefixes["key"]}={key}'
+        self.req_table.add(url)
+
+        return requests.get(url)
+
+    def init_key(self, key: str):
+        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info.value}{self.prefixes["site"]}'
+                                f'={self.site}&{self.prefixes["key"]}={key}').json()
+
+        if response['quota_max'] != self.limit:
+            raise ValueError
+
+        return mutabletuple(self.limit - response['quota_remaining'], key)
 
     @staticmethod
     def get_text(response: requests.Response):
@@ -120,9 +130,3 @@ class StackOverflow(Site):
         except:
             # can fail when none are found
             return []
-
-    def init_key(self, key: str):
-        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info.value}{self.prefixes["site"]}'
-                                f'={self.site}&{self.prefixes["key"]}={key}').json()
-
-        return mutabletuple(self.limit - response['quota_remaining'], key)
