@@ -62,8 +62,8 @@ class StackOverflow(Site):
     def get_min_pause(self):
         return self.min_pause
 
-    def create_parent_link(self, category=Methods.question.value, **kwargs):
-        url = f'{self.api_url}/{self.api_version}/{category}'
+    def create_parent_link(self, method=Methods.question.value, **kwargs):
+        url = f'{self.api_url}/{self.api_version}/{method}'
 
         kwargs['site'] = self.site
 
