@@ -64,23 +64,25 @@ class StackOverflow(Site):
     def get_min_pause(self):
         return self.min_pause
 
-    def create_parent_link(self, category=Categories.question, **kwargs):
+    def create_parent_link(self, category=Categories.question.value, **kwargs):
         url = f'{self.api_url}/{self.api_version}/{category}'
 
+        kwargs['site'] = self.site
+
         url_fields = ''
-        for key, value in kwargs:
+        for key in kwargs:
             if key in self.prefixes:
                 if url_fields:
                     url_fields += '&'
 
-                url_fields += f'{self.prefixes[key]}={value}'
+                url_fields += f'{self.prefixes[key]}={kwargs[key]}'
 
-        url += url_fields + f'{self.prefixes["site"]}{self.site}'
-
-        return url
+        return url + url_fields
 
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         soup = self.get_soup(parent_link, pause, pause_time)
+
+        # TODO: this is all now broken :( will need to fix to adapt to the response from stackexchange API
 
         # search the parse tree for all with the <a> tag, which is for a hyperlink and use the href tag to get the
         # url from them
@@ -129,8 +131,8 @@ class StackOverflow(Site):
         return url.split('/')[4]
 
     def init_key(self, key: str):
-        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info}{self.prefixes["site"]}='
-                                f'{self.site}&{self.prefixes["key"]}={key}')
+        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Categories.info.value}{self.prefixes["site"]}'
+                                f'={self.site}&{self.prefixes["key"]}={key}')
         response = response.json()
 
         # TODO: pull and use more info from this response
