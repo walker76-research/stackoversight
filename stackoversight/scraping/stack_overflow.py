@@ -13,10 +13,8 @@ class StackOverflow(Site):
     api_url = 'https://api.stackexchange.com'
     api_version = '2.2'
 
-    timeout_sec = 86400
     min_pause = 1 / 30
     page_size = 100
-    limit = 10000
 
     fields = {'sort': 'sort',
               'order': 'order',
@@ -54,10 +52,13 @@ class StackOverflow(Site):
         python3 = 'python-3.x'
 
     def __init__(self, client_keys: list):
-        sessions = [self.init_key(key) for key in client_keys]
+        limit = 10000
+        timeout_sec = 86400
+
+        sessions = [self.init_key(key, limit) for key in client_keys]
         self.req_table = set()
 
-        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
+        super(StackOverflow, self).__init__(sessions, timeout_sec, limit)
 
     def get_min_pause(self):
         return self.min_pause
@@ -79,6 +80,7 @@ class StackOverflow(Site):
 
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
+        # TODO: handle None response
         key = response[1]
         request_count = response[2]
         response = response[0].json()
@@ -104,18 +106,20 @@ class StackOverflow(Site):
     # as a hook for future needs
     def handle_request(self, url: str, key: str):
         url = f'{url}&{self.fields["key"]}={key}'
-        self.req_table.add(url)
 
-        return requests.get(url)
+        if url not in self.req_table:
+            self.req_table.add(url)
 
-    def init_key(self, key: str):
+            return requests.get(url)
+
+    def init_key(self, key: str, limit: int):
         response = requests.get(f'{self.api_url}/{self.api_version}/{self.Methods.info.value}{self.fields["site"]}'
                                 f'={self.site}&{self.fields["key"]}={key}').json()
 
-        if response['quota_max'] != self.limit:
+        if response['quota_max'] != limit:
             raise ValueError
 
-        return mutabletuple(self.limit - response['quota_remaining'], key)
+        return mutabletuple(limit - response['quota_remaining'], key)
 
     @staticmethod
     def get_text(response: requests.Response):
