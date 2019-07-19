@@ -6,9 +6,11 @@ from stackoversight.scraping.stack_overflow import StackOverflow
 from queue import Queue
 # For threading the scraping process
 import threading
+# For io
+from io import IOBase
 
 
-def scrape_parent_link(input_queue: Queue, site: StackOverflow, output_queue: Queue):
+def scrape_parent_links(input_queue: Queue, site: StackOverflow, output_queue: Queue):
     while True:
         if not input_queue.empty():
             link = input_queue.get()
@@ -32,7 +34,7 @@ def scrape_parent_link(input_queue: Queue, site: StackOverflow, output_queue: Qu
                     break
 
 
-def scrape_child_link(input_queue: Queue, site: StackOverflow):
+def scrape_child_links(input_queue: Queue, site: StackOverflow, ostream):
     # for debug purposes
     while True:
         if not input_queue.empty():
@@ -48,38 +50,63 @@ def scrape_child_link(input_queue: Queue, site: StackOverflow):
                 # terminate
 
             for code in site.get_code(response):
-                # pickle the code
+                # use ostream
                 print(code)
 
             for text in site.get_text(response):
-                # pickle the text
+                # use ostream
                 print(text)
 
 
-# address of the proxy server
-proxy = 'http://localhost:5050'
+class StackOversight(object):
+    def __init__(self, client_keys: list, proxy=None):
+        if proxy:
+            # address of the proxy server
+            self.proxy = 'http://localhost:5050'
 
-# set the environment variable http_proxy and such
-# os.environ['http_proxy'] = proxy
-# os.environ['HTTP_PROXY'] = proxy
-# os.environ['https_proxy'] = proxy
-# os.environ['HTTPS_PROXY'] = proxy
+            # set the environment variable http_proxy and such
+            os.environ['http_proxy'] = proxy
+            os.environ['HTTP_PROXY'] = proxy
+            os.environ['https_proxy'] = proxy
+            os.environ['HTTPS_PROXY'] = proxy
 
-client_keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
-stack_overflow = StackOverflow(client_keys)
+        self.site = StackOverflow(client_keys)
 
-python_posts = stack_overflow.create_parent_link(sort=stack_overflow.Sorts.votes.value,
-                                                 order=stack_overflow.Orders.descending.value,
-                                                 tag=stack_overflow.Tags.python.value, page_size=100)
+        self.thread_handles = []
+        self.file_handles = []
 
-parent_link_queue = Queue()
-child_link_queue = Queue()
+    def start(self, parent_link_queue: Queue, io: IOBase):
+        code_file_handle = io.open('code.txt', 'w')
+        text_file_handle = io.open('text.txt', 'w')
 
-parent_link_queue.put(python_posts)
+        self.file_handles.extend((code_file_handle, text_file_handle))
 
-parent_link_thread = threading.Thread(target=scrape_parent_link, args=(parent_link_queue, stack_overflow,
-                                                                       child_link_queue))
-child_link_thread = threading.Thread(target=scrape_child_link, args=(child_link_queue, stack_overflow))
+        child_link_queue = Queue()
 
-parent_link_thread.start()
-child_link_thread.start()
+        parent_link_thread = threading.Thread(target=scrape_parent_links,
+                                              args=(parent_link_queue, self.site, child_link_queue))
+        parent_link_thread.setName("StackExchange API Handler")
+
+        child_link_thread = threading.Thread(target=scrape_child_links, args=(child_link_queue, self.site))
+        child_link_thread.setName("StackOverflow Scraping Handler")
+
+        parent_link_thread.start()
+        child_link_thread.start()
+
+    def terminate(self):
+        for file_handle in self.file_handles:
+            file_handle.close()
+
+        for thread_handle in self.thread_handles:
+            thread_handle.exit()
+
+
+# for debugging only
+keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
+
+python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.value,
+                                                order=StackOverflow.Orders.descending.value,
+                                                tag=StackOverflow.Tags.python.value, page_size=100)
+
+link_queue = Queue()
+link_queue.put(python_posts)
