@@ -60,24 +60,6 @@ class StackOverflow(Site):
 
         super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
-    def get_min_pause(self):
-        return self.min_pause
-
-    def create_parent_link(self, method=Methods.question.value, **kwargs):
-        url = f'{self.api_url}/{self.api_version}/{method}'
-
-        kwargs['site'] = self.site
-
-        url_fields = ''
-        for key in kwargs:
-            if key in self.fields:
-                if url_fields:
-                    url_fields += '&'
-
-                url_fields += f'{self.fields[key]}={kwargs[key]}'
-
-        return url + url_fields
-
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
         # TODO: handle None response
@@ -107,10 +89,27 @@ class StackOverflow(Site):
     def handle_request(self, url: str, key: str):
         url = f'{url}&{self.fields["key"]}={key}'
 
-        if url not in self.req_table:
-            self.req_table.add(url)
+        # TODO: have this function return None if it has already been scraped
+        # if url not in self.req_table:
+        #    self.req_table.add(url)
 
-            return requests.get(url)
+        return requests.get(url)
+
+    @staticmethod
+    def create_parent_link(method=Methods.question.value, **kwargs):
+        url = f'{StackOverflow.api_url}/{StackOverflow.api_version}/{method}'
+
+        kwargs['site'] = StackOverflow.site
+
+        url_fields = ''
+        for key in kwargs:
+            if key in StackOverflow.fields:
+                if url_fields:
+                    url_fields += '&'
+
+                url_fields += f'{StackOverflow.fields[key]}={kwargs[key]}'
+
+        return url + url_fields
 
     @staticmethod
     def init_key(key: str):
@@ -138,3 +137,7 @@ class StackOverflow(Site):
         except:
             # can fail when none are found
             return []
+
+    @staticmethod
+    def get_min_pause():
+        return StackOverflow.min_pause

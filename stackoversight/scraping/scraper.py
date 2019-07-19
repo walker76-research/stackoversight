@@ -6,8 +6,8 @@ from stackoversight.scraping.stack_overflow import StackOverflow
 from queue import Queue
 # For threading the scraping process
 import threading
-# For io
-from io import IOBase
+# Reduce busy wait
+from time import sleep
 
 
 def scrape_parent_links(input_queue: Queue, site: StackOverflow, output_queue: Queue):
@@ -17,13 +17,11 @@ def scrape_parent_links(input_queue: Queue, site: StackOverflow, output_queue: Q
             print(link)
 
             while True:
+                # TODO: handle None response
                 try:
-                    # TODO: handle None response
                     links = site.get_child_links(link, pause=True)
                 except:
-                    print("Exception caught in scrape_parent_link thread, ending process...")
                     break
-                    # terminate
 
                 has_more = links[1]
                 links = links[0]
@@ -34,28 +32,26 @@ def scrape_parent_links(input_queue: Queue, site: StackOverflow, output_queue: Q
                     break
 
 
-def scrape_child_links(input_queue: Queue, site: StackOverflow, ostream):
+def scrape_child_links(input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle):
     # for debug purposes
     while True:
         if not input_queue.empty():
             link = input_queue.get()
-            print(link)
+            # print(link)
 
+            # TODO: handle None response
             try:
-                # TODO: handle None response
                 response = site.process_request(link, pause=True)[0]
             except:
-                print('Exception caught in scrape_child_link thread, ending process...')
                 break
-                # terminate
 
             for code in site.get_code(response):
-                # use ostream
-                print(code)
+                code_io_handle.write(code)
+                # print(code)
 
             for text in site.get_text(response):
-                # use ostream
-                print(text)
+                text_io_handle.write(code)
+                # print(text)
 
 
 class StackOversight(object):
@@ -76,10 +72,10 @@ class StackOversight(object):
         self.file_handles = []
 
     def start(self, parent_link_queue: Queue):
-        code_file_handle = open('code.txt', 'w')
-        text_file_handle = open('text.txt', 'w')
+        code_io_handle = open('code.txt', 'w')
+        text_io_handle = open('text.txt', 'w')
 
-        self.file_handles.extend((code_file_handle, text_file_handle))
+        self.file_handles.extend((code_io_handle, text_io_handle))
 
         child_link_queue = Queue()
 
@@ -87,11 +83,18 @@ class StackOversight(object):
                                               args=(parent_link_queue, self.site, child_link_queue))
         parent_link_thread.setName("StackExchange API Handler")
 
-        child_link_thread = threading.Thread(target=scrape_child_links, args=(child_link_queue, self.site))
+        child_link_thread = threading.Thread(target=scrape_child_links,
+                                             args=(child_link_queue, self.site, code_io_handle, text_io_handle))
         child_link_thread.setName("StackOverflow Scraping Handler")
 
         parent_link_thread.start()
         child_link_thread.start()
+
+        while all([handle.is_alive() for handle in self.thread_handles]):
+            print('All threads healthy...')
+            sleep(5)
+
+        self.terminate()
 
     def terminate(self):
         for file_handle in self.file_handles:
