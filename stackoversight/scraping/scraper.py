@@ -75,9 +75,9 @@ class StackOversight(object):
         self.thread_handles = []
         self.file_handles = []
 
-    def start(self, parent_link_queue: Queue, io: IOBase):
-        code_file_handle = io.open('code.txt', 'w')
-        text_file_handle = io.open('text.txt', 'w')
+    def start(self, parent_link_queue: Queue):
+        code_file_handle = open('code.txt', 'w')
+        text_file_handle = open('text.txt', 'w')
 
         self.file_handles.extend((code_file_handle, text_file_handle))
 
@@ -110,3 +110,6 @@ python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.v
 
 link_queue = Queue()
 link_queue.put(python_posts)
+
+scraper = StackOversight(keys)
+scraper.start(link_queue)

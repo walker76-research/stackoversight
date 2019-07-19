@@ -13,6 +13,9 @@ class StackOverflow(Site):
     api_url = 'https://api.stackexchange.com'
     api_version = '2.2'
 
+    limit = 10000
+    timeout_sec = 86400
+
     min_pause = 1 / 30
     page_size = 100
 
@@ -52,13 +55,10 @@ class StackOverflow(Site):
         python3 = 'python-3.x'
 
     def __init__(self, client_keys: list):
-        limit = 10000
-        timeout_sec = 86400
-
-        sessions = [self.init_key(key, limit) for key in client_keys]
+        sessions = [self.init_key(key) for key in client_keys]
         self.req_table = set()
 
-        super(StackOverflow, self).__init__(sessions, timeout_sec, limit)
+        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
     def get_min_pause(self):
         return self.min_pause
@@ -112,14 +112,16 @@ class StackOverflow(Site):
 
             return requests.get(url)
 
-    def init_key(self, key: str, limit: int):
-        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Methods.info.value}{self.fields["site"]}'
-                                f'={self.site}&{self.fields["key"]}={key}').json()
+    @staticmethod
+    def init_key(key: str):
+        response = requests.get(f'{StackOverflow.api_url}/{StackOverflow.api_version}/'
+                                f'{StackOverflow.Methods.info.value}{StackOverflow.fields["site"]}='
+                                f'{StackOverflow.site}&{StackOverflow.fields["key"]}={key}').json()
 
-        if response['quota_max'] != limit:
+        if response['quota_max'] != StackOverflow.limit:
             raise ValueError
 
-        return mutabletuple(limit - response['quota_remaining'], key)
+        return mutabletuple(StackOverflow.limit - response['quota_remaining'], key)
 
     @staticmethod
     def get_text(response: requests.Response):
