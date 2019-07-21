@@ -1,76 +1,41 @@
-from tokenize import generate_tokens
-from io import StringIO
 import pickle
+from pprint import pprint
 
 from stackoversight.scraper import Scraper
-from stackoversight.keyword_analyzer import KeywordAnalyzer
 from stackoversight.trie import TrieNode, add
-from stackoversight.astformer import ASTFormer, ASTFStatus
-from stackoversight.sanitizecode import SanitizeCode
-
-
-def get_keywords(code: str):
-    keyword_analyzer = KeywordAnalyzer()
-    tokens = []
-    for token in generate_tokens(StringIO(code).readline):
-        # pprint.pprint(token)
-        tokens.append((token[0], token[1]))
-
-    start_token = "START"
-    keywords = []
-    for token in tokens:
-
-        if token[1] == '\n':
-            continue
-
-        if keyword_analyzer.is_keyword(token, start_token):
-            # pprint.pprint(keyword_analyzer.get_keyword())
-            start_token = keyword_analyzer.get_keyword()
-            keywords.append(start_token)
-
-    return keywords
+from stackoversight.pipeline import Pipeline, Tokenizer, KeywordExtractor, Sanitizer, Filter
 
 
 # SITE = StackAPI('stackoverflow')
 # SITE.max_pages = 1
 # SITE.pagesize = 100
 # questions = SITE.fetch('questions', tagged="python")
-with open("data/gitdump.pickle", "rb") as handle: # Opens the file
+with open("C:\Programs\code-duplication\data\gitdump.pickle", "rb") as handle: # Opens the file
     questions = pickle.load(handle)
 print("Retrieved questions")
 # pick = Picklizer(questions)   # <- This is where we saved questions to file gitdump.pickle.
 
 urls = [question['link'] for question in questions['items']]
 print("Constructed urls")
-
 scraper = Scraper()
-soup_dict = {}
-for url in urls[:10]:
+
+snippets = []
+for url in urls[:2]:
     print(f'Scraping {url}')
     scraper.set_url(url)
     soup = scraper.scrape()
     code_snippets = soup.find_all('code')
-    soup_dict[url] = code_snippets
+    for code_snippet in code_snippets:
+        snippets.append(code_snippet.text)
 
 root = TrieNode("*")
-code_issues = 0
-code_totals = 0
-for key in soup_dict:
-    value = soup_dict[key]
-    for code_snippet in value:
-        code = code_snippet.text
-        astf = ASTFormer(code)
-        if astf.status == ASTFStatus.SUCCESS:
-            keywords = get_keywords(code)
-            add(root, keywords)
-        else:
-            sanitized_code = SanitizeCode(code)  # Attempt to sanitize the code
-            astf2 = ASTFormer(sanitized_code)
-            print(astf2.status)
-            if astf2.status == ASTFStatus.FAILURE:  # Check if attempted fixes could verify python 2
-                code_issues = code_issues + 1
-            else:
-                keywords = get_keywords(code)
-                add(root, keywords)
 
-print(str(code_totals) + " code snippets found. " + str(code_issues) + " could not compile.")
+pipeline = Pipeline([
+    Sanitizer(),
+    Filter(),
+    Tokenizer(),
+    KeywordExtractor()
+])
+
+result = pipeline.feed(snippets)
+pprint(result)

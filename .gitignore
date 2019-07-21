@@ -1,6 +1,6 @@
 .idea/
 venv/
-__init__.py
 __pycache__/
 *.pyc
 data/
+.env

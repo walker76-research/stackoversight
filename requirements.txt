@@ -3,4 +3,7 @@ requests_oauthlib
 recordclass
 requests
 stackapi
-bs4
+beautifulsoup4
+redis
+rq
+python-dotenv
