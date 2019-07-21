@@ -103,7 +103,6 @@ class StackOversight(object):
         for thread_handle in self.thread_handles:
             thread_handle.exit()
 
-
 # for debugging only
 keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
 
