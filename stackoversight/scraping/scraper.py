@@ -8,53 +8,11 @@ from queue import Queue
 import threading
 # Reduce busy wait
 from time import sleep
-
-
-def scrape_parent_links(input_queue: Queue, site: StackOverflow, output_queue: Queue):
-    while True:
-        if not input_queue.empty():
-            link = input_queue.get()
-            print(link)
-
-            while True:
-                # TODO: handle None response
-                try:
-                    links = site.get_child_links(link, pause=True)
-                except:
-                    break
-
-                has_more = links[1]
-                links = links[0]
-
-                list(map(output_queue.put, links))
-
-                if not has_more:
-                    break
-
-
-def scrape_child_links(input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle):
-    # for debug purposes
-    while True:
-        if not input_queue.empty():
-            link = input_queue.get()
-            # print(link)
-
-            # TODO: handle None response
-            try:
-                response = site.process_request(link, pause=True)[0]
-            except:
-                break
-
-            for code in site.get_code(response):
-                code_io_handle.write(code)
-                # print(code)
-
-            for text in site.get_text(response):
-                text_io_handle.write(code)
-                # print(text)
+from stackoversight.scraping.queue_monitor import QueueMonitor
 
 
 class StackOversight(object):
+
     def __init__(self, client_keys: list, proxy=None):
         if proxy:
             # address of the proxy server
@@ -71,6 +29,17 @@ class StackOversight(object):
         self.thread_handles = []
         self.file_handles = []
 
+        self.code_lock = threading.Lock()
+        self.text_lock = threading.Lock()
+
+    def __del__(self):
+        for file_handle in self.file_handles:
+            file_handle.close()
+
+        for thread_handle in self.thread_handles:
+            thread_handle.exit()
+            # thread_handle.join()
+
     def start(self, parent_link_queue: Queue):
         code_io_handle = open('code.txt', 'w')
         text_io_handle = open('text.txt', 'w')
@@ -79,32 +48,91 @@ class StackOversight(object):
 
         child_link_queue = Queue()
 
-        parent_link_thread = threading.Thread(target=scrape_parent_links,
+        parent_link_thread = threading.Thread(target=self.scrape_parent_links,
                                               args=(parent_link_queue, self.site, child_link_queue))
-        parent_link_thread.setName("StackExchange API Handler")
+        parent_link_thread.setName("StackExchange API Handler n")
 
-        child_link_thread = threading.Thread(target=scrape_child_links,
+        child_link_thread = threading.Thread(target=self.scrape_child_links,
                                              args=(child_link_queue, self.site, code_io_handle, text_io_handle))
-        child_link_thread.setName("StackOverflow Scraping Handler")
+        child_link_thread.setName("StackOverflow Scraping Handler n")
+
+        queue_monitor = QueueMonitor(parent_link_queue)
 
         parent_link_thread.start()
         child_link_thread.start()
+        queue_monitor.start()
 
-        while all([handle.is_alive() for handle in self.thread_handles]):
-            print('All threads healthy...')
-            sleep(5)
+        self.thread_handles.extend((parent_link_thread, child_link_thread, queue_monitor))
 
-        self.terminate()
+        flag = False
+        while not flag:
+            sleep(1)
 
-    def terminate(self):
-        for file_handle in self.file_handles:
-            file_handle.close()
+            for handle in self.thread_handles:
+                print(f'{handle.getName()} is {["not "] if [not handle.is_alive()] else [""]} healthy.')
 
-        for thread_handle in self.thread_handles:
-            thread_handle.exit()
+                if not handle.is_alive():
+                    flag = True
+                    break
+
+        if queue_monitor.is_alive():
+            print(f'Since a thread has failed, this process will now terminate...')
+        else:
+            print(f'All links in parent queue processed, now terminating...')
+        sleep(1)
+        queue_monitor.join()  # to cleanup the thread
+
+    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue):
+        while True:
+            if not input_queue.empty():
+                link = input_queue.get()
+                print(link)
+
+                # TODO: thread this point on in this method for each parent link
+                while True:
+                    # TODO: handle None response
+                    try:
+                        links = site.get_child_links(link, pause=True)
+                    except:
+                        break
+
+                    has_more = links[1]
+                    links = links[0]
+
+                    list(map(output_queue.put, links))
+
+                    if not has_more:
+                        break
+
+                input_queue.task_done()
+
+    def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle):
+        # for debug purposes
+        while True:
+            if not input_queue.empty():
+                link = input_queue.get()
+                print(link)
+
+                # TODO: thread this point on in this method for each link
+                # TODO: handle None response
+                try:
+                    response = site.process_request(link, pause=True)[0]
+                except:
+                    break
+
+                for code in site.get_code(response):
+                    with self.code_lock:
+                        code_io_handle.write(code)
+
+                for text in site.get_text(response):
+                    with self.text_lock:
+                        text_io_handle.write(text)
+
+                input_queue.task_done()
+
 
 # for debugging only
-keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', 'RGaU7lYPN8L5KbnIfkxmGQ((']
+keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', '1yfsxJa1AC*GlxN6RSemCQ((']
 
 python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.value,
                                                 order=StackOverflow.Orders.descending.value,
@@ -112,6 +140,7 @@ python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.v
 
 link_queue = Queue()
 link_queue.put(python_posts)
+link_queue.task_done()
 
 scraper = StackOversight(keys)
 scraper.start(link_queue)

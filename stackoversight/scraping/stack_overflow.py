@@ -19,6 +19,8 @@ class StackOverflow(Site):
     min_pause = 1 / 30
     page_size = 100
 
+    req_table = set()
+
     fields = {'sort': 'sort',
               'order': 'order',
               'tag': 'tagged',
@@ -56,7 +58,6 @@ class StackOverflow(Site):
 
     def __init__(self, client_keys: list):
         sessions = [self.init_key(key) for key in client_keys]
-        self.req_table = set()
 
         super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
