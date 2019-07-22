@@ -17,12 +17,16 @@ class Pipeline(object):
         return PipelineOutput(items)
 
 
-class PipelineOutput:
+class PipelineOutput(list):
     def __init__(self, items):
+        super(PipelineOutput, self).__init__()
         self.items = items
 
-    def get(self, index):
-        return self.items[index]
+    def __getitem__(self, item):
+        return self.items[item]
+
+    def __len__(self):
+        return len(self.items)
 
     def get_length(self, index=None):
         if index is None:
