@@ -1,5 +1,4 @@
-from pipeline .pipelineoutput import PipelineOutput
-
+from pipeline import PipelineOutput
 
 class Pipeline(object):
     def __init__(self, steps=None):

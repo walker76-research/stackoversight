@@ -1,6 +1,9 @@
 import numpy as np
 from datasketch import MinHash, MinHashLSHForest
-from pipeline import Sanitizer, Filter, Tokenizer, KeywordExtractor
+from sanitizer import Sanitizer
+from tokenizer import Tokenizer
+from keyword_extractor import KeywordExtractor
+from filter import Filter
 
 
 class PipelineOutput(list):

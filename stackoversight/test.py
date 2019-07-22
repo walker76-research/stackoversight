@@ -1,5 +1,4 @@
-from pipeline import Tokenizer, KeywordExtractor, Sanitizer, Filter, Pipeline
-
+from pipeline import Sanitizer, Tokenizer, KeywordExtractor, Filter, Pipeline
 
 code_base = "for i in range(1,11):\n" \
         "   n = 1\n" \

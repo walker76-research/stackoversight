@@ -1,3 +1,5 @@
+import sys
+sys.path.append("/stackoversight/pipeline")
 from pipeline.pipelineobject import Pipeline
 from pipeline.processing_step import ProcessingStep
 from pipeline.tokenizer import Tokenizer
