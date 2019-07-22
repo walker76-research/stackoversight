@@ -1,6 +1,6 @@
 import ast
 import copy
-from stackoversight.pipeline import ProcessingStep
+from pipeline import ProcessingStep
 
 
 class Sanitizer(ProcessingStep):
@@ -31,16 +31,17 @@ class Sanitizer(ProcessingStep):
             comment = line.find("#")
             if comment > 0:
                 if line[comment - 1] != "\\":
-                    fixed_line = line[0:comment]
-                    code[num] = fixed_line
-        return "\n".join(code)
+                    code[num] = line[0:comment]
+                    if not code[num].strip():
+                        code[num] = None
+        return "\n".join(filter(None, code))
 
     @staticmethod
     def remove_plaintext(code):
         no_plaintext = code.splitlines()
         fix = copy.deepcopy(no_plaintext)
         for num, line in enumerate(no_plaintext):
-            if not line.strip():
+            if line.strip():
                 try:
                     newline = line.strip()
                     ast.parse(newline, mode='single')

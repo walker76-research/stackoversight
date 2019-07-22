@@ -1,5 +1,5 @@
 import keyword
-from stackoversight.pipeline import ProcessingStep
+from pipeline import ProcessingStep
 from token import *
 
 

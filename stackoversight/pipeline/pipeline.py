@@ -14,4 +14,36 @@ class Pipeline(object):
             step.process(items)
             items = step.get()
 
-        return items
+        return PipelineOutput(items)
+
+
+class PipelineOutput:
+    def __init__(self, items):
+        self.items = items
+
+    def get(self, index):
+        return self.items[index]
+
+    def get_length(self, index=None):
+        if index is None:
+            return len(self.items)
+        else:
+            try:
+                return len(self.items[index])
+            except IndexError as e:
+                return e
+
+    def print(self, index=None):
+        if index is None:
+            for ind, it in enumerate(self.items):
+                print("=INDEX: " + str(ind) + "=")
+                print(it)
+        else:
+            try:
+                print("=INDEX: " + str(index) + "=")
+                print(self.items[index])
+            except IndexError:
+                print("Index out of bounds on pipeline print!")
+
+    def get_unique_id(self, index):
+        return 10

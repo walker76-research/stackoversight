@@ -1,6 +1,6 @@
 import ast
-from stackoversight.pipeline import ProcessingStep
-from stackoversight.pipeline import Sanitizer
+from pipeline import ProcessingStep
+from pipeline import Sanitizer
 
 
 class Filter(ProcessingStep):
