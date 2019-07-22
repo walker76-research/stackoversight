@@ -6,9 +6,6 @@ from stackoversight.scraping.stack_overflow import StackOverflow
 from queue import Queue
 # For threading the scraping process
 import threading
-# Reduce busy wait
-from time import sleep
-from stackoversight.scraping.queue_monitor import QueueMonitor
 
 
 class StackOversight(object):
@@ -33,12 +30,13 @@ class StackOversight(object):
         self.text_lock = threading.Lock()
 
     def __del__(self):
+        for thread_handle in self.thread_handles:
+            # TODO: add timeout and raise exception in thread if timeout reached then try again and then finally skip
+            #  if that fails too
+            thread_handle.join()
+
         for file_handle in self.file_handles:
             file_handle.close()
-
-        for thread_handle in self.thread_handles:
-            thread_handle.exit()
-            # thread_handle.join()
 
     def start(self, parent_link_queue: Queue):
         code_io_handle = open('code.txt', 'w')
@@ -48,87 +46,78 @@ class StackOversight(object):
 
         child_link_queue = Queue()
 
+        kill = threading.Event()
+
         parent_link_thread = threading.Thread(target=self.scrape_parent_links,
-                                              args=(parent_link_queue, self.site, child_link_queue))
-        parent_link_thread.setName("StackExchange API Handler n")
+                                              args=(parent_link_queue, self.site, child_link_queue, kill))
+        parent_link_thread.setName("StackExchange API Manager")
 
         child_link_thread = threading.Thread(target=self.scrape_child_links,
-                                             args=(child_link_queue, self.site, code_io_handle, text_io_handle))
-        child_link_thread.setName("StackOverflow Scraping Handler n")
+                                             args=(child_link_queue, self.site, code_io_handle, text_io_handle,
+                                                   kill))
+        child_link_thread.setName("StackOverflow Scraping Manager")
 
-        queue_monitor = QueueMonitor(parent_link_queue)
+        self.thread_handles.extend((parent_link_thread, child_link_thread))
 
-        parent_link_thread.start()
-        child_link_thread.start()
-        queue_monitor.start()
+        for handle in self.thread_handles:
+            handle.start()
 
-        self.thread_handles.extend((parent_link_thread, child_link_thread, queue_monitor))
+        kill.wait()
+        for handle in self.thread_handles:
+            alive = handle.is_alive()
+            print(f'{handle.getName()} is {["not "] if [not alive] else [""]} healthy.')
 
-        flag = False
-        while not flag:
-            sleep(1)
+            # TODO: setup each thread for joining
 
-            for handle in self.thread_handles:
-                print(f'{handle.getName()} is {["not "] if [not handle.is_alive()] else [""]} healthy.')
-
-                if not handle.is_alive():
-                    flag = True
-                    break
-
-        if queue_monitor.is_alive():
-            print(f'Since a thread has failed, this process will now terminate...')
-        else:
-            print(f'All links in parent queue processed, now terminating...')
-        sleep(1)
-        queue_monitor.join()  # to cleanup the thread
-
-    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue):
+    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue,
+                            failure: threading.Event):
         while True:
-            if not input_queue.empty():
-                link = input_queue.get()
-                print(link)
+            link = input_queue.get(block=True)
+            print(link)
 
-                # TODO: thread this point on in this method for each parent link
-                while True:
-                    # TODO: handle None response
-                    try:
-                        links = site.get_child_links(link, pause=True)
-                    except:
-                        break
-
-                    has_more = links[1]
-                    links = links[0]
-
-                    list(map(output_queue.put, links))
-
-                    if not has_more:
-                        break
-
-                input_queue.task_done()
-
-    def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle):
-        # for debug purposes
-        while True:
-            if not input_queue.empty():
-                link = input_queue.get()
-                print(link)
-
-                # TODO: thread this point on in this method for each link
-                # TODO: handle None response
+            # TODO: thread this point on in this method for each parent link
+            # TODO: handle None response
+            # TODO: make sure actually incrementing page
+            while True:
                 try:
-                    response = site.process_request(link, pause=True)[0]
+                    links = site.get_child_links(link, pause=True)
                 except:
+                    failure.set()
                     break
 
-                for code in site.get_code(response):
-                    with self.code_lock:
-                        code_io_handle.write(code)
+                has_more = links[1]
+                links = links[0]
 
-                for text in site.get_text(response):
-                    with self.text_lock:
-                        text_io_handle.write(text)
+                list(map(output_queue.put, links))
 
-                input_queue.task_done()
+                if not has_more:
+                    break
+
+            input_queue.task_done()
+
+    def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle,
+                           failure: threading.Event):
+        while True:
+            link = input_queue.get(block=True)
+            print(link)
+
+            # TODO: thread this point on in this method for each link
+            # TODO: handle None response
+            try:
+                response = site.process_request(link, pause=True)[0]
+            except:
+                failure.set()
+                break
+
+            for code in site.get_code(response):
+                with self.code_lock:
+                    code_io_handle.write(code)
+
+            for text in site.get_text(response):
+                with self.text_lock:
+                    text_io_handle.write(text)
+
+            input_queue.task_done()
 
 
 # for debugging only
