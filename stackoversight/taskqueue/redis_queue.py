@@ -29,9 +29,9 @@ class RedisQueue:
 
         load_dotenv(verbose=True)
 
-        redis_host = os.getenv("REDIS_HOST") if os.getenv("REDIS_HOST") is not None else "localhost"
-        redis_port = os.getenv("REDIS_PORT") if os.getenv("REDIS_PORT") is not None else 6379
-        redis_password = os.getenv("REDIS_PASSWORD") if os.getenv("REDIS_PASSWORD") is not None else ""
+        redis_host = os.getenv("REDIS_HOST", "localhost")
+        redis_port = os.getenv("REDIS_PORT", "6379")
+        redis_password = os.getenv("REDIS_PASSWORD", "")
         self.q = Queue(connection=Redis(host=redis_host, port=redis_port, password=redis_password, decode_responses=True))
 
     def enqueue(self, function, *args):
