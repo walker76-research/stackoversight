@@ -1,6 +1,6 @@
 import ast
-from pipeline import ProcessingStep
-from pipeline import Sanitizer
+from pipeline.processing_step import ProcessingStep
+from pipeline.sanitizer import Sanitizer
 
 
 class Filter(ProcessingStep):

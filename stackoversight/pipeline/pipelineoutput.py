@@ -1,9 +1,5 @@
 import numpy as np
 from datasketch import MinHash, MinHashLSHForest
-from sanitizer import Sanitizer
-from tokenizer import Tokenizer
-from keyword_extractor import KeywordExtractor
-from filter import Filter
 
 
 class PipelineOutput(list):
@@ -13,15 +9,8 @@ class PipelineOutput(list):
         self.input = None
         self.forest = None
 
-    def set_input(self, inp, processed=False):
-        if processed:
-            self.input = inp
-        else:
-            inp = Sanitizer.operation(inp)
-            inp = Filter.operation(inp)
-            inp = Tokenizer.operation(inp)
-            inp = KeywordExtractor.operation(inp)
-            self.input = inp
+    def set_input(self, inp):
+        self.input = inp
 
     def __getitem__(self, item):
         return self.items[item]
