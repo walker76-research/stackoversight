@@ -53,7 +53,7 @@ The list of code snippets is then added to a Redis queue which is processed thro
 
 ### Pipeline Structure 
 The pipeline is organized as such:
-[image](https://github.com/walker76/stackoversight/blob/master/pipeline-structure.png)
+![image](https://github.com/walker76/stackoversight/blob/master/pipeline-structure.png)
 
 The proxies gather URLs from the StackAPI load balanced so that we do not overload their systems or run out of queries.
 
