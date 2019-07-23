@@ -11,14 +11,17 @@ from stackoversight.scraping.site_balancer import SiteBalancer
 
 
 class Site(object):
+    balancer = None
+    last_pause_time = None
+
     def __init__(self, sessions: list, timeout_sec: int, limit: int):
         self.limit = limit
         self.timeout_sec = timeout_sec
 
-        self.last_pause_time = None
         self.back_off = 0
 
-        self.balancer = SiteBalancer(sessions, timeout_sec, limit)
+        if not self.balancer:
+            balancer = SiteBalancer(sessions, timeout_sec, limit)
 
     def pause(self, pause_time):
         if not pause_time and self.limit:

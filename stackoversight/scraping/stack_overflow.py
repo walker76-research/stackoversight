@@ -13,10 +13,13 @@ class StackOverflow(Site):
     api_url = 'https://api.stackexchange.com'
     api_version = '2.2'
 
+    limit = 10000
     timeout_sec = 86400
+
     min_pause = 1 / 30
     page_size = 100
-    limit = 10000
+
+    req_table = set()
 
     fields = {'sort': 'sort',
               'order': 'order',
@@ -55,30 +58,12 @@ class StackOverflow(Site):
 
     def __init__(self, client_keys: list):
         sessions = [self.init_key(key) for key in client_keys]
-        self.req_table = set()
 
         super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
 
-    def get_min_pause(self):
-        return self.min_pause
-
-    def create_parent_link(self, method=Methods.question.value, **kwargs):
-        url = f'{self.api_url}/{self.api_version}/{method}'
-
-        kwargs['site'] = self.site
-
-        url_fields = ''
-        for key in kwargs:
-            if key in self.fields:
-                if url_fields:
-                    url_fields += '&'
-
-                url_fields += f'{self.fields[key]}={kwargs[key]}'
-
-        return url + url_fields
-
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
+        # TODO: handle None response
         key = response[1]
         request_count = response[2]
         response = response[0].json()
@@ -104,18 +89,39 @@ class StackOverflow(Site):
     # as a hook for future needs
     def handle_request(self, url: str, key: str):
         url = f'{url}&{self.fields["key"]}={key}'
-        self.req_table.add(url)
+
+        # TODO: have this function return None if it has already been scraped
+        # if url not in self.req_table:
+        #    self.req_table.add(url)
 
         return requests.get(url)
 
-    def init_key(self, key: str):
-        response = requests.get(f'{self.api_url}/{self.api_version}/{self.Methods.info.value}{self.fields["site"]}'
-                                f'={self.site}&{self.fields["key"]}={key}').json()
+    @staticmethod
+    def create_parent_link(method=Methods.question.value, **kwargs):
+        url = f'{StackOverflow.api_url}/{StackOverflow.api_version}/{method}'
 
-        if response['quota_max'] != self.limit:
+        kwargs['site'] = StackOverflow.site
+
+        url_fields = ''
+        for key in kwargs:
+            if key in StackOverflow.fields:
+                if url_fields:
+                    url_fields += '&'
+
+                url_fields += f'{StackOverflow.fields[key]}={kwargs[key]}'
+
+        return url + url_fields
+
+    @staticmethod
+    def init_key(key: str):
+        response = requests.get(f'{StackOverflow.api_url}/{StackOverflow.api_version}/'
+                                f'{StackOverflow.Methods.info.value}{StackOverflow.fields["site"]}='
+                                f'{StackOverflow.site}&{StackOverflow.fields["key"]}={key}').json()
+
+        if response['quota_max'] != StackOverflow.limit:
             raise ValueError
 
-        return mutabletuple(self.limit - response['quota_remaining'], key)
+        return mutabletuple(StackOverflow.limit - response['quota_remaining'], key)
 
     @staticmethod
     def get_text(response: requests.Response):
@@ -132,3 +138,7 @@ class StackOverflow(Site):
         except:
             # can fail when none are found
             return []
+
+    @staticmethod
+    def get_min_pause():
+        return StackOverflow.min_pause
