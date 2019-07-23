@@ -5,48 +5,49 @@ from datasketch import MinHash, MinHashLSHForest
 class PipelineOutput(list):
     def __init__(self, items):
         super(PipelineOutput, self).__init__()
-        self.items = items
-        self.input = None
-        self.forest = None
+        self.__items = items
+        self.__input = None
+        self.__forest = None
+        self.__results = []
 
     def set_input(self, inp):
-        self.input = inp
+        self.__input = inp
 
     def __getitem__(self, item):
-        return self.items[item]
+        return self.__items[item]
 
     def __len__(self):
-        return len(self.items)
+        return len(self.__items)
 
     def get_length(self, index=None):
         if index is None:
-            return len(self.items)
+            return len(self.__items)
         else:
             try:
-                return len(self.items[index])
+                return len(self.__items[index])
             except IndexError as e:
                 return e
 
     def print(self, index=None):
         if index is None:
-            for ind, it in enumerate(self.items):
+            for ind, it in enumerate(self.__items):
                 print("=INDEX: " + str(ind) + "=")
                 print(it)
         else:
             try:
                 print("=INDEX: " + str(index) + "=")
-                print(self.items[index])
+                print(self.__items[index])
             except IndexError:
                 print("Index out of bounds on pipeline print!")
 
     # Forms the forest for LSH
-    def get_lsh(self):
-        if self.input is None:
+    def form_lsh(self):
+        if self.__input is None:
             return None
 
         minhash = []
 
-        for s in self.items:
+        for s in self.__items:
             m = MinHash(num_perm=128)
             for q in s:
                 m.update(q.encode('utf8'))
@@ -58,7 +59,7 @@ class PipelineOutput(list):
             forest.add(i, m)
 
         forest.index()
-        self.forest = forest
+        self.__forest = forest
 
         return forest
 
@@ -67,16 +68,20 @@ class PipelineOutput(list):
     # Outputs top 5 most similar results
     def query(self, item=None):
         if item is None:
-            if self.input is not None:
-                item = self.input
+            if self.__input is not None:
+                item = self.__input
             else:
                 return None
 
         m = MinHash(num_perm=128)
         for s in item:
             m.update(s.encode('utf8'))
-        out = np.array(self.forest.query(m, 5))
+        out = np.array(self.__forest.query(m, 5))
         if len(out) == 0:
             return None
         else:
+            self.__results = out
             return out
+
+    def get_results(self):
+        return self.__results
