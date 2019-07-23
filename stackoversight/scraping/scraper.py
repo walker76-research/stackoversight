@@ -6,12 +6,13 @@ from stackoversight.scraping.stack_overflow import StackOverflow
 from queue import Queue
 # For threading the scraping process
 import threading
-# For raising error
-import ctypes
+# For serialization
+import json
+# For thread management
+from stackoversight.scraping.thread_executioner import ThreadExecutioner
 
 
 class StackOversight(object):
-
     def __init__(self, client_keys: list, proxy=None):
         if proxy:
             # address of the proxy server
@@ -38,14 +39,13 @@ class StackOversight(object):
         self.file_handles.extend((code_io_handle, text_io_handle))
 
         child_link_queue = Queue()
-
         kill = threading.Event()
 
-        parent_link_thread = threading.Thread(target=self.thread_executioner,
+        parent_link_thread = threading.Thread(target=ThreadExecutioner.execute,
                                               args=(parent_link_queue, self.site, child_link_queue, kill))
         parent_link_thread.setName("StackExchange API Manager")
 
-        child_link_thread = threading.Thread(target=self.scrape_child_links,
+        child_link_thread = threading.Thread(target=ThreadExecutioner.execute,
                                              args=(child_link_queue, self.site, code_io_handle, text_io_handle, kill))
         child_link_thread.setName("StackOverflow Scraping Manager")
 
@@ -55,93 +55,32 @@ class StackOversight(object):
             handle.start()
 
         kill.wait()
-        for handle in self.thread_handles:
-            alive = handle.is_alive()
-            print(f'{handle.getName()} is {["not "] if [not alive] else [""]} healthy.')
 
-            if alive:
-                if not ctypes.pythonapi.PyThreadState_SetAsyncExc(handle, ctypes.py_object(SystemExit)):
-                    raise ChildProcessError
-            handle.join()
+        for handle in self.thread_handles:
+            was_alive = ThreadExecutioner.murder(handle)
+            print(f'{handle.getName()} is {["not "] if [not was_alive] else [""]} healthy.')
 
         for file_handle in self.file_handles:
             file_handle.close()
 
-    @staticmethod
-    def mass_murder(victims: Queue):
-        try:
-            while True:
-                victim = victims.get(block=True)
-                StackOversight.murder(victim)
-        except SystemExit:
-            # logging
-
-    @staticmethod
-    def murder(victim: threading.Thread):
-        alive = victim.is_alive()
-        if alive:
-            if not ctypes.pythonapi.PyThreadState_SetAsyncExc(victim, ctypes.py_object(SystemExit)):
-                raise ChildProcessError
-        victim.join()
-
-    @staticmethod
-    def thread_executioner(target, input_queue: Queue, *args):
-        hit_queue = Queue()
-        thread_killer = threading.Thread(target=StackOversight.mass_murder, args=[hit_queue], daemon=True)
-        thread_killer.start()
-
-        try:
-            while True:
-                next_in = input_queue.get(block=True)
-                print(next_in)
-
-                threading.Thread(target=target, args=(next_in, *args), daemon=True)
-
-        except SystemExit:
-            StackOversight.murder(thread_killer)
-            print('Done scraping parent links')
-
-    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue, failure: threading.Event):
-        StackOversight.thread_executioner(site, output_queue, failure, target=StackOversight.scrape_parent_link, input_queue=input_queue)
+    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue,
+                            failure: threading.Event):
+        ThreadExecutioner.execute(self.scrape_parent_link, input_queue, site, output_queue, failure)
 
     def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle,
                            failure: threading.Event):
+        ThreadExecutioner.execute(self.scrape_child_link, input_queue, site, code_io_handle,
+                                          text_io_handle, failure)
+
+    def scrape_parent_link(self, link: str, used_parents: Queue, site: StackOverflow, output_queue: Queue,
+                           failure: threading.Event):
         try:
-            while True:
-                link = input_queue.get(block=True)
-                print(link)
-
-                # TODO: thread this point on in this method for each link
-                # TODO: handle None response
-                try:
-                    response = site.process_request(link, pause=True)[0]
-                except SystemExit:
-                    raise
-                except:
-                    # TODO: logging
-                    failure.set()
-                    raise
-
-                for code in site.get_code(response):
-                    with self.code_lock:
-                        code_io_handle.write(code)
-
-                for text in site.get_text(response):
-                    with self.text_lock:
-                        text_io_handle.write(text)
-
-        except SystemExit:
-            print('Done scraping child links')
-
-    @staticmethod
-    def scrape_parent_link(link: str, site: StackOverflow, output_queue: Queue, failure: threading.Event,
-                           used_parents: Queue):
-        try:
-            while True:
+            has_more = True
+            while has_more:
                 try:
                     # TODO: handle None response
                     # TODO: make sure actually incrementing page
-                    links = site.get_child_links(link, pause=True)
+                    response = site.get_child_links(link, pause=True)
                 except SystemExit:
                     raise
                 except:
@@ -149,15 +88,50 @@ class StackOversight(object):
                     failure.set()
                     raise
 
-                has_more = links[1]
-                links = links[0]
-                list(map(output_queue.put, links))
+                has_more = response[1]
+                response = response[0]
+                list(map(output_queue.put, response))
 
                 if not has_more:
                     used_parents.put(threading.currentThread())
                     break
         except SystemExit:
-            # logging
+            print()
+            # TODO: logging
+
+    def scrape_child_link(self, link: str, used_children: Queue, site: StackOverflow, code_io_handle, text_io_handle,
+                          failure: threading.Event):
+        try:
+            # TODO: thread this point on in this method for each link
+            # TODO: handle None response
+            try:
+                response = site.process_request(link, pause=True)[0]
+            except SystemExit:
+                raise
+            except:
+                # TODO: logging
+                failure.set()
+                raise
+
+            for code in site.get_code(response):
+                snippet = {'snippet': code}
+
+                with self.code_lock:
+                    json.dump(snippet, code_io_handle)
+                    # code_io_handle.write(code)
+
+            for text in site.get_text(response):
+                snippet = {'snippet': text}
+
+                with self.text_lock:
+                    json.dump(snippet, text_io_handle)
+                    # text_io_handle.write(text)
+
+            used_children.put(threading.current_thread())
+
+        except SystemExit:
+            print()
+            # TODO: logging
 
 
 # for debugging only
