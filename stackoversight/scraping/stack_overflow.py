@@ -55,6 +55,7 @@ class StackOverflow(Site):
         python = 'python'
         python2 = 'python-2.7'
         python3 = 'python-3.x'
+        java = 'java'
 
     def __init__(self, client_keys: list):
         sessions = [self.init_key(key) for key in client_keys]

@@ -38,3 +38,6 @@ class RedisConnection:
 
     def get(self, key):
         return self.redis.get(key)
+
+    def exists(self, key):
+        return self.get(key)
