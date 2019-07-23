@@ -1,6 +1,6 @@
 import keyword
-from stackoversight.pipeline import ProcessingStep
 from token import *
+from pipeline.processing_step import ProcessingStep
 
 
 class KeywordExtractor(ProcessingStep):

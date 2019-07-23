@@ -1,6 +1,6 @@
 from io import StringIO
 from tokenize import generate_tokens
-from stackoversight.pipeline import ProcessingStep
+from pipeline.processing_step import ProcessingStep
 
 
 class Tokenizer(ProcessingStep):

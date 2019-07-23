@@ -1,3 +1,6 @@
+from pipeline.pipelineoutput import PipelineOutput
+
+
 class Pipeline(object):
     def __init__(self, steps=None):
         if steps is None:
@@ -14,4 +17,4 @@ class Pipeline(object):
             step.process(items)
             items = step.get()
 
-        return items
+        return PipelineOutput(items)
