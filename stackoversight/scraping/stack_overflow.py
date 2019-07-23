@@ -6,6 +6,10 @@ from enum import Enum
 import requests
 # Need that mutable tuple my dude
 from recordclass.mutabletuple import mutabletuple
+# For thread lock
+import threading
+# For logging
+import logging
 
 
 class StackOverflow(Site):
@@ -19,6 +23,7 @@ class StackOverflow(Site):
     min_pause = 1 / 30
     page_size = 100
 
+    req_table_lock = threading.Lock()
     req_table = set()
 
     fields = {'sort': 'sort',
@@ -63,6 +68,7 @@ class StackOverflow(Site):
 
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
+
         # TODO: handle None response
         key = response[1]
         request_count = response[2]
@@ -74,12 +80,11 @@ class StackOverflow(Site):
         links = [item['link'] for item in response['items']]
 
         if quota_max - quota_remaining != request_count:
-            print(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
-            # raise ValueError
+            logging.warn(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
 
         if not links:
-            print('The proxy is up but it is failing to pull from the site.')
-            raise requests.exceptions.ProxyError
+            logging.critical('Failing to pull from the site, raising exception.')
+            raise requests.exceptions.RequestException
 
         if self.fields['back_off'] in response:
             self.back_off = response[self.fields['back_off']]
@@ -87,14 +92,18 @@ class StackOverflow(Site):
         return links, has_more
 
     # as a hook for future needs
-    def handle_request(self, url: str, key: str):
-        url = f'{url}&{self.fields["key"]}={key}'
+    def handle_request(self, link: str, key: str):
+        link = f'{link}&{self.fields["key"]}={key}'
 
         # TODO: have this function return None if it has already been scraped
-        # if url not in self.req_table:
-        #    self.req_table.add(url)
+        with self.req_table_lock:
+            if link not in self.req_table:
+                self.req_table.add(link)
+            else:
+                logging.warn(f'{threading.current_thread().getName()} received a link, {link} that has already been'
+                             f' scraped!')
 
-        return requests.get(url)
+        return requests.get(link)
 
     @staticmethod
     def create_parent_link(method=Methods.question.value, **kwargs):
@@ -121,7 +130,7 @@ class StackOverflow(Site):
         if response['quota_max'] != StackOverflow.limit:
             raise ValueError
 
-        return mutabletuple(StackOverflow.limit - response['quota_remaining'], key)
+        return mutabletuple(StackOverflow.limit - response['quota_remaining'] + 1, key)
 
     @staticmethod
     def get_text(response: requests.Response):
