@@ -23,8 +23,16 @@ class StackOverflow(Site):
     min_pause = 1 / 30
     page_size = 100
 
+    # clean all this shit up with reader writer locks
+
     req_table_lock = threading.Lock()
     req_table = set()
+
+    pause_lock = threading.Lock()
+    back_off_lock = threading.Lock()
+
+    last_pause_time = None
+    back_off = 0
 
     fields = {'sort': 'sort',
               'order': 'order',
@@ -87,11 +95,11 @@ class StackOverflow(Site):
             raise requests.exceptions.RequestException
 
         if self.fields['back_off'] in response:
-            self.back_off = response[self.fields['back_off']]
+            with self.back_off_lock:
+                self.back_off = response[self.fields['back_off']]
 
         return links, has_more
 
-    # as a hook for future needs
     def handle_request(self, link: str, key: str):
         link = f'{link}&{self.fields["key"]}={key}'
 
@@ -151,3 +159,16 @@ class StackOverflow(Site):
     @staticmethod
     def get_min_pause():
         return StackOverflow.min_pause
+
+    @staticmethod
+    def clear_back_off():
+        back_off = StackOverflow.back_off
+
+        with StackOverflow.back_off_lock:
+            StackOverflow.back_off = 0
+
+        return back_off
+
+    @staticmethod
+    def get_pause_lock():
+        return StackOverflow.pause_lock
