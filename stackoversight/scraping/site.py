@@ -21,7 +21,7 @@ class Site(object):
         self.back_off = 0
 
         if not self.balancer:
-            balancer = SiteBalancer(sessions, timeout_sec, limit)
+            self.balancer = SiteBalancer(sessions, timeout_sec, limit)
 
     def pause(self, pause_time):
         if not pause_time and self.limit:

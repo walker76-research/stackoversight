@@ -70,9 +70,10 @@ class StackOversight(object):
     def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle,
                            failure: threading.Event):
         ThreadExecutioner.execute(self.scrape_child_link, input_queue, site, code_io_handle,
-                                          text_io_handle, failure)
+                                  text_io_handle, failure)
 
-    def scrape_parent_link(self, link: str, used_parents: Queue, site: StackOverflow, output_queue: Queue,
+    @staticmethod
+    def scrape_parent_link(link: str, used_parents: Queue, site: StackOverflow, output_queue: Queue,
                            failure: threading.Event):
         try:
             has_more = True
