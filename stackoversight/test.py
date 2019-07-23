@@ -80,4 +80,4 @@ keywords = pipeline.feed([code_base, code_sample, code_samplet, code_samplet2, n
 keywords.set_input(code_sample)
 keywords.form_lsh()
 keywords.query(keywords[0])
-print(keywords.get_results())
+print(keywords.results)

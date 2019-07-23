@@ -83,5 +83,7 @@ class PipelineOutput(list):
             self.__results = out
             return out
 
-    def get_results(self):
+    def __get_results(self):
         return self.__results
+
+    results = property(__get_results)
