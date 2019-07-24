@@ -45,6 +45,21 @@ class Pipeline(object):
     def set_steps(self, steps):
         self.steps = steps
 
+    def execute(self, items: list):
+        job = None
+        job = self.__queues[0].enqueue(self.steps[0].process, items)
+        # for ind, step in enumerate(self.steps):
+        #     if ind is 0:
+        #         job = self.__queues[0].enqueue(self.steps[0].process, items)
+        #         print("Entering pipeline")
+        #     else:
+        #         job = self.__queues[ind].enqueue(step.process, job.result)
+        #         print("Enqueuing " + str(ind))
+        return PipelineOutput(job.result)
+        # while len(items) > 100:
+    # for i in range(100):
+    #     items2.append(items.pop())
+
     def execute_synchronous(self, items):
         # Feed the item into one step, get the result, feed the
         # result to the next step and so on.
