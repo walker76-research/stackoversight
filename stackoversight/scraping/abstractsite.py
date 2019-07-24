@@ -13,8 +13,10 @@ import threading
 # For logging
 import logging
 
+# TODO: fix issues caused by changing is_ready
 
-class Site(object):
+
+class AbstractSite(object):
 
     def __init__(self, sessions: list, timeout_sec: int, limit: int):
         self.limit = limit
@@ -63,11 +65,8 @@ class Site(object):
         return self.last_pause_time
 
     def process_request(self, url: str, pause=False, pause_time=None):
-        # TODO: Set this up to wait on a signal from a timer thread so that it isn't a busy wait
         # get the next id to use or wait until one is ready
-        while not self.balancer.is_ready():
-            sleep(1)
-            print("Waiting...")
+        self.balancer.ready.wait()
 
         key = next(self.balancer)
 
@@ -79,8 +78,8 @@ class Site(object):
         try:
             response = self.handle_request(url, key)
         except:
-            print("Make sure Archituethis is running or comment out setting the proxy environment variables!\n"
-                  "Could also be an issue with your token?")
+            logging.critical(f'In {threading.current_thread().getName()} error while requesting {url}, '
+                             f'raising exception.')
             raise requests.exceptions.ProxyError
 
         # mark the request as being made

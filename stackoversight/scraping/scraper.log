@@ -1,0 +1,299 @@
+INFO:root:Parent link https://api.stackexchange.com/2.2/questions?sort=votes&order=desc&tagged=python&pagesize=100&site=stackoverflow created.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=RGaU7lYPN8L5KbnIfkxmGQ(( HTTP/1.1" 200 253
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 200 254
+INFO:root:Parent link https://api.stackexchange.com/2.2/questions?sort=votes&order=desc&tagged=python&pagesize=100&site=stackoverflow created.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=RGaU7lYPN8L5KbnIfkxmGQ(( HTTP/1.1" 200 254
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 200 254
+INFO:root:Parent link https://api.stackexchange.com/2.2/questions?sort=votes&order=desc&tagged=python&pagesize=100&site=stackoverflow created.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=RGaU7lYPN8L5KbnIfkxmGQ(( HTTP/1.1" 200 254
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/info?site=stackoverflow&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 200 254
+INFO:root:Starting StackExchange API Manager.
+INFO:root:Starting StackOverflow Scraping Manager.
+INFO:root:New killer, StackExchange API Manager's Thread Killer, spawned.
+INFO:root:New worker, StackExchange API Manager's Worker #0, spawned.
+INFO:root:New killer, StackOverflow Scraping Manager's Thread Killer, spawned.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/questions?sort=votes&order=desc&tagged=python&pagesize=100&site=stackoverflow&key=RGaU7lYPN8L5KbnIfkxmGQ(( HTTP/1.1" 200 15743
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #0, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #1, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #2, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #3, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #4, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #5, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #6, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #7, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #8, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #9, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #10, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #11, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #12, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #13, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #14, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #15, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #16, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #17, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #18, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #19, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #20, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #21, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #22, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #23, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #24, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #25, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #26, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #27, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #28, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #29, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #30, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #31, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #32, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #33, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #34, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #35, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #36, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #37, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #38, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #39, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #40, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #41, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #42, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #43, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #44, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #45, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #46, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #47, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #48, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #49, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #50, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #51, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #52, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #53, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #54, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #55, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #56, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #57, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #58, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #59, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #60, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #61, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #62, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #63, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #64, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #65, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #66, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #67, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #68, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #69, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #70, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #71, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #72, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #73, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #74, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #75, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #76, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #77, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #78, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #79, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #80, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #81, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #82, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #83, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #84, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #85, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #86, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #87, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #88, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #89, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #90, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #91, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #92, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #93, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #94, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #95, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #96, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #97, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #98, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #99, spawned.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.stackexchange.com:443
+DEBUG:urllib3.connectionpool:https://api.stackexchange.com:443 "GET /2.2/questions?sort=votes&order=desc&tagged=python&pagesize=100&site=stackoverflow&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 200 15743
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #100, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #101, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #102, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #103, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #104, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #105, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #106, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #107, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #108, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #109, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #110, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #111, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #112, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #113, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #114, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #115, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #116, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #117, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #118, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #119, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #120, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #121, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #122, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #123, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #124, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #125, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #126, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #127, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #128, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #129, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #130, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #131, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #132, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #133, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #134, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #135, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #136, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #137, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #138, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #139, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #140, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #141, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #142, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #143, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #144, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #145, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #146, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #147, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #148, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #149, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #150, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #151, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #152, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #153, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #154, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #155, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #156, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #157, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #158, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #159, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #160, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #161, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #162, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #163, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #164, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #165, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #166, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #167, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #168, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #169, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #170, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #171, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #172, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #173, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #174, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #175, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #176, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #177, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #178, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #179, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #180, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #181, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #182, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #183, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #184, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #185, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #186, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #187, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #188, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #189, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #190, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #191, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #192, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #193, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #194, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #195, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #196, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #197, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #198, spawned.
+INFO:root:New worker, StackOverflow Scraping Manager's Worker #199, spawned.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/231767/what-does-the-yield-keyword-do&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 165
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/231767/what-does-the-yield-keyword-do HTTP/1.1" 200 107024
+INFO:root:Finished with link https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do, now marking StackOverflow Scraping Manager's Worker #0 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #0 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/394809/does-python-have-a-ternary-conditional-operator&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 182
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/394809/does-python-have-a-ternary-conditional-operator HTTP/1.1" 200 74545
+INFO:root:Finished with link https://stackoverflow.com/questions/394809/does-python-have-a-ternary-conditional-operator, now marking StackOverflow Scraping Manager's Worker #1 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #1 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/100003/what-are-metaclasses-in-python&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 165
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/100003/what-are-metaclasses-in-python HTTP/1.1" 200 78971
+INFO:root:Finished with link https://stackoverflow.com/questions/100003/what-are-metaclasses-in-python, now marking StackOverflow Scraping Manager's Worker #2 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #2 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/419163/what-does-if-name-main-do&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 160
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/419163/what-does-if-name-main-do HTTP/1.1" 200 81750
+INFO:root:Finished with link https://stackoverflow.com/questions/419163/what-does-if-name-main-do, now marking StackOverflow Scraping Manager's Worker #3 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #3 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 189
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions HTTP/1.1" 200 101755
+INFO:root:Finished with link https://stackoverflow.com/questions/82831/how-do-i-check-whether-a-file-exists-without-exceptions, now marking StackOverflow Scraping Manager's Worker #4 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #4 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/89228/calling-an-external-command-in-python&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 171
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/89228/calling-an-external-command-in-python HTTP/1.1" 200 90584
+INFO:root:Finished with link https://stackoverflow.com/questions/89228/calling-an-external-command-in-python, now marking StackOverflow Scraping Manager's Worker #5 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #5 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/38987/how-to-merge-two-dictionaries-in-a-single-expression&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 186
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/38987/how-to-merge-two-dictionaries-in-a-single-expression HTTP/1.1" 200 85137
+INFO:root:Finished with link https://stackoverflow.com/questions/38987/how-to-merge-two-dictionaries-in-a-single-expression, now marking StackOverflow Scraping Manager's Worker #6 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #6 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/273192/how-can-i-safely-create-a-nested-directory&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 177
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/273192/how-can-i-safely-create-a-nested-directory HTTP/1.1" 200 85488
+INFO:root:Finished with link https://stackoverflow.com/questions/273192/how-can-i-safely-create-a-nested-directory, now marking StackOverflow Scraping Manager's Worker #7 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #7 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/3437059/does-python-have-a-string-contains-substring-method&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 187
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/3437059/does-python-have-a-string-contains-substring-method HTTP/1.1" 200 54194
+INFO:root:Finished with link https://stackoverflow.com/questions/3437059/does-python-have-a-string-contains-substring-method, now marking StackOverflow Scraping Manager's Worker #8 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #8 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/3207219/how-do-i-list-all-files-of-a-directory&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 174
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/3207219/how-do-i-list-all-files-of-a-directory HTTP/1.1" 200 86136
+INFO:root:Finished with link https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory, now marking StackOverflow Scraping Manager's Worker #9 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #9 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/613183/how-do-i-sort-a-dictionary-by-value&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 170
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/613183/how-do-i-sort-a-dictionary-by-value HTTP/1.1" 200 89124
+INFO:root:Finished with link https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value, now marking StackOverflow Scraping Manager's Worker #10 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #10 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/53513/how-do-i-check-if-a-list-is-empty&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 167
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/53513/how-do-i-check-if-a-list-is-empty HTTP/1.1" 200 90159
+INFO:root:Finished with link https://stackoverflow.com/questions/53513/how-do-i-check-if-a-list-is-empty, now marking StackOverflow Scraping Manager's Worker #11 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #11 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/136097/what-is-the-difference-between-staticmethod-and-classmethod&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 194
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/136097/what-is-the-difference-between-staticmethod-and-classmethod HTTP/1.1" 200 74265
+INFO:root:Finished with link https://stackoverflow.com/questions/136097/what-is-the-difference-between-staticmethod-and-classmethod, now marking StackOverflow Scraping Manager's Worker #12 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #12 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/522563/accessing-the-index-in-for-loops&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 167
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/522563/accessing-the-index-in-for-loops HTTP/1.1" 200 63885
+INFO:root:Finished with link https://stackoverflow.com/questions/522563/accessing-the-index-in-for-loops, now marking StackOverflow Scraping Manager's Worker #13 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #13 is dead, no need to kill prematurely.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): stackoverflow.com:443
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/252703/what-is-the-difference-between-pythons-list-methods-append-and-extend&key=1yfsxJa1AC*GlxN6RSemCQ(( HTTP/1.1" 301 204
+DEBUG:urllib3.connectionpool:https://stackoverflow.com:443 "GET /questions/252703/what-is-the-difference-between-pythons-list-methods-append-and-extend HTTP/1.1" 200 63010
+INFO:root:Finished with link https://stackoverflow.com/questions/252703/what-is-the-difference-between-pythons-list-methods-append-and-extend, now marking StackOverflow Scraping Manager's Worker #14 for death.
+INFO:root:StackOverflow Scraping Manager's Worker #14 is dead, no need to kill prematurely.

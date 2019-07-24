@@ -260,7 +260,7 @@ class ReadLock:
 
 
 class WriteLock:
-    def __int__(self, read_write_lock: RWLock):
+    def __init__(self, read_write_lock: RWLock):
         self.read_write_lock = read_write_lock
 
     def __enter__(self):

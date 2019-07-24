@@ -1,5 +1,5 @@
 # For basic Site class
-from stackoversight.scraping.site import Site
+from stackoversight.scraping.abstractsite import AbstractSite
 # For site tags and sorts
 from enum import Enum
 # For proxy exception
@@ -12,7 +12,7 @@ import threading
 import logging
 
 
-class StackOverflow(Site):
+class StackOverflow(AbstractSite):
     site = 'stackoverflow'
     api_url = 'https://api.stackexchange.com'
     api_version = '2.2'
@@ -65,9 +65,7 @@ class StackOverflow(Site):
         python3 = 'python-3.x'
 
     def __init__(self, client_keys: list):
-        sessions = [self.init_key(key) for key in client_keys]
-
-        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
+        super(StackOverflow, self).__init__([self.init_key(key) for key in client_keys], self.timeout_sec, self.limit)
 
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
@@ -83,7 +81,7 @@ class StackOverflow(Site):
         links = [item['link'] for item in response['items']]
 
         if quota_max - quota_remaining != request_count:
-            logging.warn(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
+            logging.warning(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
 
         if not links:
             logging.critical('Failing to pull from the site, raising exception.')
@@ -108,8 +106,8 @@ class StackOverflow(Site):
             if link not in self.req_table:
                 self.req_table.add(link)
             else:
-                logging.warn(f'{threading.current_thread().getName()} received a link, {link} that has already been'
-                             f' scraped!')
+                logging.warning(f'{threading.current_thread().getName()} received a link, {link} that has already been'
+                                f' scraped!')
 
         return requests.get(link)
 
@@ -147,7 +145,8 @@ class StackOverflow(Site):
     @staticmethod
     def get_text(response: requests.Response):
         try:
-            return [element.get_text() for element in Site.cook_soup(response).find_all(attrs={'class': 'post-text'})]
+            return [element.get_text() for element in
+                    AbstractSite.cook_soup(response).find_all(attrs={'class': 'post-text'})]
         except:
             logging.debug(f'In thread {threading.current_thread().getName()} no post-text found in response.')
             return []
@@ -155,7 +154,7 @@ class StackOverflow(Site):
     @staticmethod
     def get_code(response: requests.Response):
         try:
-            return [element.get_text() for element in Site.cook_soup(response).find_all('code')]
+            return [element.get_text() for element in AbstractSite.cook_soup(response).find_all('code')]
         except:
             logging.debug(f'In thread {threading.current_thread().getName()} no code found in response.')
             return []
