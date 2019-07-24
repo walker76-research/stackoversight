@@ -80,14 +80,12 @@ class StackOversight(object):
         current_thread_name = threading.current_thread().getName()
         has_more = True
         response = None
-        page = 0
+        page = 1
 
         try:
             while has_more:
                 try:
-                    # link += f'&{StackOverflow.fields["page"]}={page}'
-
-                    response = site.get_child_links(link, pause=True)
+                    response = site.get_child_links(link + f'&{StackOverflow.fields["page"]}={page}', pause=True)
                 except SystemExit:
                     raise
                 except:

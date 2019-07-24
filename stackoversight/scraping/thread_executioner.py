@@ -47,13 +47,12 @@ class ThreadExecutioner:
 
             while True:
                 task = tasks.get(block=True)
-                print(task)
 
                 worker = threading.Thread(target=target, args=(task, hit_queue, *args), daemon=True)
                 worker.setName(f'{current_thread_name}\'s Worker #{worker_count}')
                 worker.start()
 
-                logging.info(f'New worker, {worker.getName()}, spawned.')
+                logging.info(f'New worker, {worker.getName()}, spawned for task {task}.')
 
                 worker_count += 1
         except SystemExit:
