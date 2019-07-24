@@ -65,7 +65,6 @@ snippets = [
 
 pipeline = Pipeline(processing_steps)
 # pipeline.setup_workers()
-pipeline.set_steps(processing_steps)
 output = pipeline.execute(snippets)
 output.print()
 #pipeline.feed([code_sample, code_samplet, code_samplet2, not_code, code_base])

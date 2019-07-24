@@ -5,8 +5,10 @@ class ProcessingStep(object):
 
     def process(self, items):
         for item in items:
+            item = item.strip()
             result = self.operation(item)
             self.results.append(result)
+        return self.results
 
     def get(self):
         return self.results

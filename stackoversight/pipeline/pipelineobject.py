@@ -3,6 +3,7 @@ from taskqueue.redis_queue import RedisQueue
 from taskqueue.redis_connection import RedisConnection
 from redis import ConnectionError
 from rq import Connection, Worker, Queue
+import time
 # from queue import Queue
 
 
@@ -39,24 +40,30 @@ class Pipeline(object):
         except ConnectionError:
             print("Could not connect to host")
 
+    def execute(self, items: list):
+        results = []
+        for ind, item in enumerate(items):
+            job = self.__queues[0].enqueue(test_function, args=[[item]])
+            print("Processing item number [" + str(ind) + "] - queue: " + self.steps[0].name)
+            print("   :|" + item[0:32].replace("\n", "\\n") + "...")
+            while job.get_status() != "finished":
+                time.sleep(0)
+            print(str(job.get_status()))
+            results.append(job.result)
+            print("Num results: " + str(len(results)))
+        print(results)
+        return PipelineOutput(results)
+
+    def _process_in_pipeline(self, item: list) -> list:
+        for step in self.steps:
+            item = step.process(item)
+        return item
+
     def get_redis_instance(self):
         return self.redis_instance
 
     def set_steps(self, steps):
         self.steps = steps
-
-    def execute(self, items: list):
-        job = None
-        job = self.__queues[0].enqueue(self.steps[0].process, items)
-        # for ind, step in enumerate(self.steps):
-        #     if ind is 0:
-        #         job = self.__queues[0].enqueue(self.steps[0].process, items)
-        #         print("Entering pipeline")
-        #     else:
-        #         job = self.__queues[ind].enqueue(step.process, job.result)
-        #         print("Enqueuing " + str(ind))
-        return PipelineOutput(job.result)
-        # while len(items) > 100:
     # for i in range(100):
     #     items2.append(items.pop())
 
@@ -68,3 +75,9 @@ class Pipeline(object):
             items = step.get()
 
         return PipelineOutput(items)
+
+def test2_function(item):
+    return ["hello"]
+
+def test_function(item):
+    return test2_function(item)
