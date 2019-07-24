@@ -43,7 +43,7 @@ class Pipeline(object):
     def execute(self, items: list):
         results = []
         for ind, item in enumerate(items):
-            job = self.__queues[0].enqueue(test_function, args=[[item]])
+            job = self.__queues[0].enqueue(process_in_pipeline, args=[self.steps, [item]])
             print("Processing item number [" + str(ind) + "] - queue: " + self.steps[0].name)
             print("   :|" + item[0:32].replace("\n", "\\n") + "...")
             while job.get_status() != "finished":
@@ -54,19 +54,14 @@ class Pipeline(object):
         print(results)
         return PipelineOutput(results)
 
-    def _process_in_pipeline(self, item: list) -> list:
-        for step in self.steps:
-            item = step.process(item)
-        return item
-
     def get_redis_instance(self):
         return self.redis_instance
 
     def set_steps(self, steps):
         self.steps = steps
+
     # for i in range(100):
     #     items2.append(items.pop())
-
     def execute_synchronous(self, items):
         # Feed the item into one step, get the result, feed the
         # result to the next step and so on.
@@ -75,9 +70,13 @@ class Pipeline(object):
             items = step.get()
 
         return PipelineOutput(items)
-
 def test2_function(item):
     return ["hello"]
+
+def process_in_pipeline(steps, item: list) -> list:
+    for step in steps:
+        item = step.process(item)
+    return item
 
 def test_function(item):
     return test2_function(item)

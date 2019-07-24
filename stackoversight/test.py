@@ -6,6 +6,8 @@ from pipeline.pipelineobject import Pipeline
 import asyncio
 import rq
 
+# TODO: tuples instead
+
 code_base = "for i in range(1,11):\n" \
         "   n = 1\n" \
         "   for j in range(1, i+1):\n" \
@@ -65,7 +67,11 @@ snippets = [
 
 pipeline = Pipeline(processing_steps)
 # pipeline.setup_workers()
-output = pipeline.execute(snippets)
+# output = pipeline.execute(snippets)
+output = pipeline.execute_synchronous(snippets)
+output.form_lsh()
+output.set_input(output[0])
+print(output.query())
 output.print()
-#pipeline.feed([code_sample, code_samplet, code_samplet2, not_code, code_base])
-#pipeline.execute()
+# pipeline.feed([code_sample, code_samplet, code_samplet2, not_code, code_base])
+# pipeline.execute()
