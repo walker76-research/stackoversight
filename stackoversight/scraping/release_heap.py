@@ -1,13 +1,9 @@
-# Need a heap ofc
 import heapq
-# For release timers
-import threading
-# For the release queue
-from queue import Queue
-# For writer priority
-from stackoversight.scraping.read_write_Lock import RWLock
-# For logging
 import logging
+import threading
+from queue import Queue
+
+from stackoversight.scraping.read_write_Lock import RWLock
 
 
 class AbstractReleaseHeap(object):
@@ -15,6 +11,7 @@ class AbstractReleaseHeap(object):
         elem_list must be a list of mutable tuples!
         the left value needs to be comparable and incrementable/decrementable
     """
+
     def __init__(self, elem_list: list, time_sec: int):
         # init the heap and queue and assign variables
         heapq.heapify(elem_list)

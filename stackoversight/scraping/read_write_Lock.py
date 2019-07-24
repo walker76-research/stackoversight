@@ -1,9 +1,12 @@
-import unittest
+import copy
 import threading
 import time
-import copy
+import unittest
 
-__author__ = "Mateusz Kobos"
+"""
+    Credit to original author: Mateusz Kobos
+    I just added ReaderLock and WriterLock for functionality with with statements
+"""
 
 
 class RWLock:

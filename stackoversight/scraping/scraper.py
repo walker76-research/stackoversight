@@ -1,19 +1,12 @@
-# To set the http_proxy environment variable
-import os
-# For making the site requests and overall request management
-from stackoversight.scraping.stack_overflow import StackOverflow
-# For child link queue
-from queue import Queue
-# For threading the scraping process
-import threading
-# For serialization
 import json
-# For thread management
-from stackoversight.scraping.thread_executioner import ThreadExecutioner
-# For logging
 import logging
-# For time stamp on log
+import os
+import threading
 import time
+from queue import Queue
+
+from stackoversight.scraping.stack_overflow import StackOverflow
+from stackoversight.scraping.thread_executioner import ThreadExecutioner
 
 
 class StackOversight(object):
@@ -133,14 +126,12 @@ class StackOversight(object):
 
                 with self.code_lock:
                     json.dump(snippet, code_io_handle)
-                    # code_io_handle.write(code)
 
             for text in site.get_text(response):
                 snippet = {'snippet': text}
 
                 with self.text_lock:
                     json.dump(snippet, text_io_handle)
-                    # text_io_handle.write(text)
 
             logging.info(f'Finished with link {link}, now marking {current_thread_name} for death.')
             used_children.put(threading.current_thread())
@@ -158,8 +149,12 @@ python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.v
                                                 order=StackOverflow.Orders.descending.value,
                                                 tag=StackOverflow.Tags.python.value, page_size=100)
 
+java_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.value,
+                                              order=StackOverflow.Orders.descending.value,
+                                              tag=StackOverflow.Tags.java.value, page_size=100)
+
 link_queue = Queue()
-link_queue.put(python_posts)
+link_queue.put(java_posts)
 
 _kill = threading.Event()
 

@@ -1,11 +1,7 @@
-# For threading
-import threading
-# For victim queue
-from queue import Queue
-# For raising error
 import ctypes
-# For logging
 import logging
+import threading
+from queue import Queue
 
 
 class ThreadExecutioner:

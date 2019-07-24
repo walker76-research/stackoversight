@@ -1,15 +1,11 @@
-# For basic Site class
-from stackoversight.scraping.abstractsite import AbstractSite
-# For site tags and sorts
-from enum import Enum
-# For proxy exception
-import requests
-# Need that mutable tuple my dude
-from recordclass.mutabletuple import mutabletuple
-# For thread lock
-import threading
-# For logging
 import logging
+import threading
+from enum import Enum
+
+from recordclass.mutabletuple import mutabletuple
+
+import requests
+from stackoversight.scraping.abstractsite import AbstractSite
 
 
 class StackOverflow(AbstractSite):
@@ -63,6 +59,8 @@ class StackOverflow(AbstractSite):
         python = 'python'
         python2 = 'python-2.7'
         python3 = 'python-3.x'
+
+        java = 'java'
 
     def __init__(self, client_keys: list):
         super(StackOverflow, self).__init__([self.init_key(key) for key in client_keys], self.timeout_sec, self.limit)

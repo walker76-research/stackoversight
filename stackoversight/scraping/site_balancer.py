@@ -1,7 +1,6 @@
-# Data structure for balancing
-from stackoversight.scraping.release_heap import AbstractReleaseHeap
-# For logging
 import logging
+
+from stackoversight.scraping.release_heap import AbstractReleaseHeap
 
 
 # really just a wrapper for ReleaseHeap, designed for client_ids to be iterated through

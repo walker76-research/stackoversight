@@ -1,19 +1,11 @@
-# For the proxy error and the cook_soup type specification
-import requests
-# For nap time if we're nice to the process and the site
-from time import sleep
-# For site request limit management
-import time
-# To parse the HTML documents
-from bs4 import BeautifulSoup
-# For balancing client requests to the site
-from stackoversight.scraping.site_balancer import SiteBalancer
-# For thread lock
-import threading
-# For logging
 import logging
+import threading
+import time
+from time import sleep
 
-# TODO: fix issues caused by changing is_ready
+import requests
+from bs4 import BeautifulSoup
+from stackoversight.scraping.site_balancer import SiteBalancer
 
 
 class AbstractSite(object):
