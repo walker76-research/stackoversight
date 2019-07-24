@@ -37,6 +37,9 @@ class RWLock:
         """A lock giving an even higher priority to the writer in certain
         cases (see [2] for a discussion)"""
 
+        self.read_lock = ReadLock(self)
+        self.write_lock = WriteLock(self)
+
     def reader_acquire(self):
         self.__readers_queue.acquire()
         self.__no_readers.acquire()
@@ -243,3 +246,25 @@ class RWLockTestCase(unittest.TestCase):
             t.start()
         for t in threads:
             t.join()
+
+
+class ReadLock:
+    def __init__(self, read_write_lock: RWLock):
+        self.read_write_lock = read_write_lock
+
+    def __enter__(self):
+        self.read_write_lock.reader_acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.read_write_lock.reader_release()
+
+
+class WriteLock:
+    def __int__(self, read_write_lock: RWLock):
+        self.read_write_lock = read_write_lock
+
+    def __enter__(self):
+        self.read_write_lock.writer_acquire()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.read_write_lock.writer_release()

@@ -8,41 +8,53 @@ import time
 from bs4 import BeautifulSoup
 # For balancing client requests to the site
 from stackoversight.scraping.site_balancer import SiteBalancer
+# For thread lock
+import threading
+# For logging
+import logging
 
 
 class Site(object):
+
     def __init__(self, sessions: list, timeout_sec: int, limit: int):
         self.limit = limit
         self.timeout_sec = timeout_sec
 
+        self.pause_lock = threading.Lock()
+        self.last_pause_time = None
+
         self.balancer = SiteBalancer(sessions, timeout_sec, limit)
 
     def pause(self, pause_time):
-        with self.get_pause_lock():
-            if not pause_time and self.limit:
-                # try to evenly spread the requests out by default
-                pause_time = self.timeout_sec / self.limit
+        if not pause_time and self.limit:
+            # try to evenly spread the requests out by default
+            pause_time = self.timeout_sec / self.limit
 
-            # this is the minimum wait between requests to not be throttled
-            min_pause = self.get_min_pause()
-            if pause_time < min_pause:
-                pause_time = min_pause
+        # this is the minimum wait between requests to not be throttled
+        min_pause = self.get_min_pause()
+        if pause_time < min_pause:
+            pause_time = min_pause
 
+        # only wait the diff between the time already elapsed from the last request and the pause_time
+        if self.last_pause_time:
+            time_elapsed = time.time() - self.last_pause_time
+
+            # if the elapsed time is longer then no need to wait
+            if time_elapsed < pause_time:
+                pause_time -= time_elapsed
+            else:
+                pause_time = 0
+
+        with self.pause_lock:
             # can not wait less than the back off field if it is set
             # returns the field to zero as it should be set only each time it is returned by the api
+            # TODO: eventually this back_off field could be tied to the method called, and only threads using that
+            #  method must wait the extra
             back_off = self.clear_back_off()
             if pause_time < back_off:
                 pause_time = back_off
 
-            # only wait the diff between the time already elapsed from the last request and the pause_time
-            if self.last_pause_time:
-                time_elapsed = time.time() - self.last_pause_time
-
-                # if the elapsed time is longer then no need to wait
-                if time_elapsed < pause_time:
-                    pause_time -= time_elapsed
-                else:
-                    pause_time = 0
+                logging.info(f'back_off in {threading.current_thread().getName()} is being handled')
 
             # initialize the last_pause_time field and sleep
             sleep(pause_time)
@@ -89,9 +101,6 @@ class Site(object):
         raise NotImplementedError
 
     def clear_back_off(self):
-        raise NotImplementedError
-
-    def get_pause_lock(self):
         raise NotImplementedError
 
     @staticmethod

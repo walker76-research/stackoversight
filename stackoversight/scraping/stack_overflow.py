@@ -23,15 +23,10 @@ class StackOverflow(Site):
     min_pause = 1 / 30
     page_size = 100
 
-    # clean all this shit up with reader writer locks
-
     req_table_lock = threading.Lock()
     req_table = set()
 
-    pause_lock = threading.Lock()
     back_off_lock = threading.Lock()
-
-    last_pause_time = None
     back_off = 0
 
     fields = {'sort': 'sort',
@@ -95,8 +90,13 @@ class StackOverflow(Site):
             raise requests.exceptions.RequestException
 
         if self.fields['back_off'] in response:
+            logging.info(f'{threading.current_thread().getName()} received a back_off after processing {parent_link}')
+
+            new_back_off = response[self.fields['back_off']]
+
             with self.back_off_lock:
-                self.back_off = response[self.fields['back_off']]
+                if self.back_off and self.back_off < new_back_off:
+                    self.back_off = new_back_off
 
         return links, has_more
 
@@ -127,7 +127,9 @@ class StackOverflow(Site):
 
                 url_fields += f'{StackOverflow.fields[key]}={kwargs[key]}'
 
-        return url + url_fields
+        url += url_fields
+        logging.info(f'Parent link {url} created.')
+        return url
 
     @staticmethod
     def init_key(key: str):
@@ -136,6 +138,8 @@ class StackOverflow(Site):
                                 f'{StackOverflow.site}&{StackOverflow.fields["key"]}={key}').json()
 
         if response['quota_max'] != StackOverflow.limit:
+            # TODO: later on handle by updating the limit instead
+            logging.critical('Limit does not match that returned by the site, raising exception.')
             raise ValueError
 
         return mutabletuple(StackOverflow.limit - response['quota_remaining'] + 1, key)
@@ -145,7 +149,7 @@ class StackOverflow(Site):
         try:
             return [element.get_text() for element in Site.cook_soup(response).find_all(attrs={'class': 'post-text'})]
         except:
-            # can fail when none are found
+            logging.debug(f'In thread {threading.current_thread().getName()} no post-text found in response.')
             return []
 
     @staticmethod
@@ -153,7 +157,7 @@ class StackOverflow(Site):
         try:
             return [element.get_text() for element in Site.cook_soup(response).find_all('code')]
         except:
-            # can fail when none are found
+            logging.debug(f'In thread {threading.current_thread().getName()} no code found in response.')
             return []
 
     @staticmethod
@@ -162,13 +166,10 @@ class StackOverflow(Site):
 
     @staticmethod
     def clear_back_off():
-        back_off = StackOverflow.back_off
-
         with StackOverflow.back_off_lock:
-            StackOverflow.back_off = 0
+            prev_back_off = StackOverflow.back_off
 
-        return back_off
+            if StackOverflow.back_off:
+                StackOverflow.back_off = 0
 
-    @staticmethod
-    def get_pause_lock():
-        return StackOverflow.pause_lock
+        return prev_back_off
