@@ -12,6 +12,8 @@ import json
 from stackoversight.scraping.thread_executioner import ThreadExecutioner
 # For logging
 import logging
+# For time stamp on log
+import time
 
 
 class StackOversight(object):
@@ -78,11 +80,13 @@ class StackOversight(object):
         current_thread_name = threading.current_thread().getName()
         has_more = True
         response = None
+        page = 0
 
         try:
             while has_more:
                 try:
-                    # TODO: make sure actually incrementing page
+                    # link += f'&{StackOverflow.fields["page"]}={page}'
+
                     response = site.get_child_links(link, pause=True)
                 except SystemExit:
                     raise
@@ -99,9 +103,12 @@ class StackOversight(object):
 
                 if not has_more:
                     logging.info(f'Finished with link {link}, now marking {current_thread_name} for death.')
-                    used_parents.put(threading.currentThread())
 
+                    used_parents.put(threading.currentThread())
                     break
+                else:
+                    page += 1
+
         except SystemExit:
             logging.info(f'System exit exception raised, {current_thread_name} successfully killed.')
 
@@ -145,7 +152,7 @@ class StackOversight(object):
 
 
 # for debugging only
-logging.basicConfig(filename='scraper.log', level=logging.DEBUG)
+logging.basicConfig(filename=f'scraper.{time.strftime("%Y%m%d-%H%M%S")}.log', level=logging.DEBUG)
 
 keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', '1yfsxJa1AC*GlxN6RSemCQ((']
 
