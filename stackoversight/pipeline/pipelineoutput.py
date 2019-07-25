@@ -47,12 +47,7 @@ class PipelineOutput(list):
                 print("Index out of bounds on pipeline print!")
 
     # Forms the forest for LSH
-    def form_lsh(self, input=None):
-        if self.__input is None and input is not None:
-            self.__input = input
-        elif input is None:
-            return None
-
+    def form_lsh(self):
         minhash = []
 
         for s in self.__items:

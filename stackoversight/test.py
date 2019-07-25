@@ -68,11 +68,12 @@ snippets = [
 
 pipeline = Pipeline(processing_steps)
 output = pipeline.execute_synchronous(snippets)
-output.form_lsh(output[0:4])
+output.form_lsh()
 output.set_input(output[0])
-query_out = output.query("TEST")
+query_out = output.query()
 
 result = query_out.get()
+
 print(result)
 print(query_out.get_snippet(0))
 print(query_out.message)
