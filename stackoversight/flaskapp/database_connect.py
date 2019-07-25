@@ -83,6 +83,7 @@ outputdata = access_data("snippets")
 
 #file = json.loads(file)
 #print(file)
+print(outputdata)
 
 
 
