@@ -9,4 +9,4 @@ rq
 python-dotenv
 numpy
 datasketch
-python-dotenv
+mysql-connector-python
