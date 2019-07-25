@@ -4,6 +4,7 @@ from taskqueue.redis_connection import RedisConnection
 from redis import ConnectionError
 from rq import Connection, Worker, Queue
 import time
+import copy
 # from queue import Queue
 
 
@@ -14,13 +15,14 @@ class Pipeline(object):
     # Steps: The pipeline steps to accomplish
     # Redis_key: unknown
     # Items: Initial queue of code snippets
-    def __init__(self, steps=None):
+    def __init__(self, steps=None, snippets=None):
         if steps is None:
             steps = []
         self.steps = steps
         self.redis_instance = RedisConnection()
         self.redis_queue = RedisQueue.get_instance()
         self.__queues = []
+        self.__raw = snippets
         for step in steps:
             self.__queues.append(Queue(name=step.name, connection=self.redis_instance.redis))
 
@@ -65,18 +67,15 @@ class Pipeline(object):
     def execute_synchronous(self, items):
         # Feed the item into one step, get the result, feed the
         # result to the next step and so on.
+        self.__raw = copy.deepcopy(items)
         for step in self.steps:
             step.process(items)
             items = step.get()
+        out = PipelineOutput(items, self.__raw)
+        return out
 
-        return PipelineOutput(items)
-def test2_function(item):
-    return ["hello"]
 
 def process_in_pipeline(steps, item: list) -> list:
     for step in steps:
         item = step.process(item)
     return item
-
-def test_function(item):
-    return test2_function(item)

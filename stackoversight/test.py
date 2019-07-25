@@ -3,6 +3,7 @@ from pipeline.filter import Filter
 from pipeline.keyword_extractor import KeywordExtractor
 from pipeline.tokenizer import Tokenizer
 from pipeline.pipelineobject import Pipeline
+import json
 import asyncio
 import rq
 
@@ -58,20 +59,20 @@ processing_steps = [
 ]
 
 snippets = [
+    code_base,
     code_sample,
     code_samplet,
     code_samplet2,
-    not_code,
-    code_base
+    not_code
 ]
 
 pipeline = Pipeline(processing_steps)
-# pipeline.setup_workers()
-# output = pipeline.execute(snippets)
 output = pipeline.execute_synchronous(snippets)
-output.form_lsh()
+output.form_lsh(output[0:4])
 output.set_input(output[0])
-print(output.query())
-output.print()
-# pipeline.feed([code_sample, code_samplet, code_samplet2, not_code, code_base])
-# pipeline.execute()
+query_out = output.query("TEST")
+
+result = query_out.get()
+print(result)
+print(query_out.get_snippet(0))
+print(query_out.message)
