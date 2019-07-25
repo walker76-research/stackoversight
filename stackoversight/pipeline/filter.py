@@ -50,3 +50,7 @@ class Filter(ProcessingStep):
                 return item
             except Exception:
                 return None
+
+    @property
+    def name(self):
+        return "filter"

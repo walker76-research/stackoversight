@@ -74,3 +74,7 @@ class Sanitizer(ProcessingStep):
         line = " " * 4 + code[lineno]
         code[lineno] = line
         return "\n".join(code)
+
+    @property
+    def name(self):
+        return "sanitizer"

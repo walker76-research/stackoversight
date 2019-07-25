@@ -39,6 +39,13 @@ To run a worker:
 > rq worker -u redis://:<password>@localhost:6379
 ```
 
+In order to run this you will need to open 4 workers, the queues they should be each listening to are:
+```sanitizer, filter, tokenizer, keywordextractor.```
+
+The program will feed jobs into these respective queues consecutively.
+
+TODO: Create a shell/bash to open the workers automatically
+
 To open RQ dashboard:
 ```
 > rq-dashboard -H localhost -p 3000 --redis-password <password>

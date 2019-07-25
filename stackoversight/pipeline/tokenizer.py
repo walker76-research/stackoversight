@@ -14,3 +14,7 @@ class Tokenizer(ProcessingStep):
         Returns the tokens for a string representation of the code
         """
         return [(token[0], token[1]) for token in generate_tokens(StringIO(item).readline)]
+
+    @property
+    def name(self):
+        return "tokenizer"

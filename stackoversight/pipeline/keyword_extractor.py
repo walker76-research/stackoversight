@@ -29,6 +29,12 @@ class KeywordExtractor(ProcessingStep):
 
         return keywords
 
+    @property
+    def name(self):
+        return "keywordextractor"
+
+# END OF CLASS
+
 
 def get_keyword(prev_token, token):
 
