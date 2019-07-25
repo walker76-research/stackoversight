@@ -1,8 +1,7 @@
 # this script will take output of program and make a file that will be passed into the flask app
-#from database_connect import find_snippet_qid
+from database_connect import find_snippet_qid
 # list of snippets i got
-list_of_snippets=[]
-
+list_of_snippets=[]   #
 
 # mylist will be a list of max 3 snippets that match the most
 mylist = list_of_snippets

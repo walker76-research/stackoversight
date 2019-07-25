@@ -97,7 +97,7 @@
                       Total statistics </br>
                   </h1>
             
-              <h5>some stats here if we have some we put them here </br>
+              <h5> </br>
                   </br>
                   </br>
                   </br>
@@ -107,10 +107,14 @@
   
     
        
-    <div id="editor_R">import python jarar 
-            def peter():
-                x=5 
-                return x
+    <div id="editor_R">def hello():
+	x = 5
+	y = 7
+	print(x*y)
+
+def for_loop():
+	for i in range(5):
+		print(i)
     
             
     </div>
@@ -120,7 +124,7 @@
 
 
     <script src="static/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script content_in = '{{file_input}}' >//content_out = '{{file_out}}'>
+    <script content_in = '{{file_input}}'> // ,content_out = '{{file_out}}'>
 
         var content = document.currentScript.getAttribute('content_in');
         //var content_stat = document.currentScript.getAttribute('content_out');
@@ -142,9 +146,9 @@
         
 
         var Range = ace.require('ace/range').Range; // get reference to ace/range
-        editor_R.session.addMarker(new Range(4, 0, 6, 0), "green_highlight", "line");
+        editor_R.session.addMarker(new Range(0, 0, 8, 0), "green_highlight", "line");
     
-        editor_L.session.addMarker(new Range(4, 0, 14, 0), "red_highlight", "line");
+        //editor_L.session.addMarker(new Range(4, 0, 14, 0), "red_highlight", "line");
     
         //editor_R.setReadOnly(true);
         editor_L.setReadOnly(true);

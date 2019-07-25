@@ -85,7 +85,7 @@ def result():
 	# here will be passed the output of search 
 	#file_output =
 	file_input = readfile(current_file)
-	return render_template('result.html', file_input=file_input)# ,file_out = file_output)
+	return render_template('result.html', file_input=file_input)#,file_out= file_output)
 
 if __name__ == '__main__':
 	app.run()

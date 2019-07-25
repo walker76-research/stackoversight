@@ -13,7 +13,7 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-json_file = open("code_fixed.txt")
+json_file = open("code.txt")
 file = json_file.read()
 
 
@@ -32,7 +32,9 @@ def create_table():
 #function inserts data from json into a row in the table
 def insertion(data,table_name):
     sql = f"INSERT INTO {table_name}(code, QID) VALUES (%s,%s)"
-    val = (data.get("code"),data.get("QID"))
+    string = data.get("link")
+    final= string[36:42]
+    val = (data.get("snippet"),final)
     mycursor.execute(sql,val)
     mydb.commit()
     print(mycursor.rowcount, "record inserted")
@@ -40,7 +42,7 @@ def insertion(data,table_name):
 
 #function looks for snippet in database and returns its Qid, same snippet can be more times in database so returns list of Qids
 def find_snippet_qid(snippet):
-    mycursor.execute(f"SELECT Qid FROM snippets WHERE code = {snippet}") # IT WOULD BE BETTER TO DO IT WITH JUST ID BUT ITS NOT SETUP YET
+    mycursor.execute(f"SELECT Qid FROM snippets WHERE code = '{snippet}'") # IT WOULD BE BETTER TO DO IT WITH JUST ID BUT ITS NOT SETUP YET
     myresult = mycursor.fetchall()
     result_list=[]
     for i in myresult:
@@ -75,12 +77,12 @@ def insert_all(json_file):
 #insert_all(file)
 #show_table("snippets")
 
-#outputdata = access_data("snippets")
+outputdata = access_data("snippets")
 #for i in outputdata:
 #    print(i)
 
-file = json.loads(file)
-print(file)
+#file = json.loads(file)
+#print(file)
 
 
 
