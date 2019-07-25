@@ -1,0 +1,32 @@
+#stats{
+    position: absolute;
+    top: 0;
+    right: 30%;
+    bottom: 70%;
+    left:40%;
+  }
+#editor_R { 
+    position: absolute;
+    top: 30%;
+    right: 0;
+    bottom: 0;
+    left:50%;
+  }
+#editor_L { 
+    position: absolute;
+    top: 30%;
+    right: 50%;
+    bottom: 0;
+    left: 0;
+    margin:0
+  }
+  .red_highlight{
+  position:absolute;
+  background:rgba(255, 0, 0, 0.26);
+  z-index:20
+  }
+  .green_highlight{
+  position:absolute;
+  background:rgba(112, 255, 136, 0.63);
+  z-index:20
+  }

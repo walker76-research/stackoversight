@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Results</title>
+
+<!-- Bootstrap core CSS -->
+<link href="{{ url_for('static',filename='bootstrap.min.css')}}" rel="stylesheet" type="text/css">
+
+<!-- Custom fonts for this template -->
+<link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+
+<!-- Custom styles for this template -->
+<link href="{{ url_for('static',filename='one-page-wonder.min.css')}}" rel="stylesheet" type="text/css">
+
+
+<style type="text/css" media="screen">
+    .stats{
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 70%;
+        left:0;
+        margin-top: 0;
+        padding: 5%;
+        text-align: center;
+        color: whitesmoke;
+        font-family: 'Catamaran';
+        
+        background: -webkit-gradient(linear, left bottom, left top, from(#ee0979), to(#ff6a00));
+        background: linear-gradient(0deg, #ee0979 0%, #ff6a00 100%);
+        
+    }
+    .stats_title{
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 70%;
+        left:0;
+        color: whitesmoke;
+        margin-top: 5%;
+        text-align: center;
+        
+    }
+    #editor_R { 
+        position: absolute;
+        top: 30%;
+        right: 0;
+        bottom: 0;
+        left:50%;
+    }
+    #editor_L { 
+        position: absolute;
+        top: 30%;
+        right: 50%;
+        bottom: 0;
+        left: 0;
+        margin:0
+    }
+    .red_highlight{
+    position:absolute;
+    background:rgba(255, 0, 0, 0.26);
+    z-index:20
+    }
+    .green_highlight{
+    position:absolute;
+    background:rgba(112, 255, 136, 0.63);
+    z-index:20
+    }
+</style>
+</head>
+<body>
+
+    <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="{{ url_for('home') }}">StackOversight</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('about') }}">About Project</a>
+              </li>
+              
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+   
+    
+      <div class="stats">
+        
+              <h1 class=" masthead-heading">
+                      Total statistics </br>
+                  </h1>
+            
+              <h5>some stats here if we have some we put them here </br>
+                  </br>
+                  </br>
+                  </br>
+          
+              </h5>
+      </div>
+  
+    
+       
+    <div id="editor_R">import python jarar 
+            def peter():
+                x=5 
+                return x
+    
+            
+    </div>
+    <div id="editor_L"> 
+    </div>
+        
+
+
+    <script src="static/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script content_in = '{{file_input}}' >//content_out = '{{file_out}}'>
+
+        var content = document.currentScript.getAttribute('content_in');
+        //var content_stat = document.currentScript.getAttribute('content_out');
+        //document.write(content);
+        //console.log(content2)
+        
+
+        var editor_R = ace.edit("editor_R");
+        editor_R.setTheme("ace/theme/tomorrow");
+        editor_R.session.setMode("ace/mode/python");
+
+
+        var editor_L = ace.edit("editor_L");
+        editor_L.setTheme("ace/theme/tomorrow");
+        editor_L.session.setMode("ace/mode/python");
+
+        //editor_R.session.setValue(content_stat);
+        editor_L.session.setValue(content);
+        
+
+        var Range = ace.require('ace/range').Range; // get reference to ace/range
+        editor_R.session.addMarker(new Range(4, 0, 6, 0), "green_highlight", "line");
+    
+        editor_L.session.addMarker(new Range(4, 0, 14, 0), "red_highlight", "line");
+    
+        //editor_R.setReadOnly(true);
+        editor_L.setReadOnly(true);
+    </script>
+    <div><p>.</p></div>
+   
+</body>
+</html>
+

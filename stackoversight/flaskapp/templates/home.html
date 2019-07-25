@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+  <header class="masthead text-center text-white">
+    <div class="masthead-content">
+      <div class="container">
+        <h1 class="masthead-heading mb-0">StackOversight</h1>
+        <h2 class="masthead-subheading mb-0">Test your code! </h2>
+        <a href="{{ url_for('application') }}" class="btn btn-primary btn-xl rounded-pill mt-5">Start</a>
+      </div>
+    </div>
+    <div class="bg-circle-1 bg-circle"></div>
+    <div class="bg-circle-2 bg-circle"></div>
+    <div class="bg-circle-3 bg-circle"></div>
+    <div class="bg-circle-4 bg-circle"></div>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 order-lg-2">
+          <div class="p-5">
+            <a href=" https://stackoverflow.com/">
+              <img class="img-fluid rounded-circle" src="https://cdn.sstatic.net/Sites/stackoverflow/company/img/logos/so/so-logo.svg?v=a010291124bf" alt="stackoverflow image">
+            </a>
+          </div>
+          <div class="p-5">
+            <a href="https://www.python.org/">
+            <img class="img-fluid rounded-circle " src="http://pluspng.com/img-png/python-logo-png-python-logo-master-png-1487.png"  alt="python image">
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-6 order-lg-1">
+          <div class="p-5">
+            <h2 class="display-4">Find Out</h2>
+            <p>StackOverflow is one the most copied from website in the world. This application allows you to test any Python code for code duplication. Some cool description will be here later dont worry.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock content %}
+
+  
+

@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+  
+{% block content %}
+  
+<header class="masthead text-center text-white">
+    <div class="masthead-content">
+      <div class="container">
+         
+        
+
+        <h2 class="masthead-subheading mb-5">Upload Python Code </h2>
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                  {{ form.file.label() }}
+                  {{ form.file(class="form-control-file text-center mb-5 mt-5") }}
+                  {%  if error == 'NoSelectedFile'%}
+                      <h3>No Selected File !</h3>
+                  {% elif error == 'IncorrectFileType' %}
+                      <h3>Incorrect File Type !</h3>
+                  {% endif %}
+                <div>
+
+                   
+                </div>
+                
+              </div>
+              </fieldset>
+              <div class="form-group">
+                  {{ form.submit(class="btn btn-primary btn-xl rounded-pill mb-1") }}
+            </div>
+        </form>
+      </div>
+    </div>
+    <div class="bg-circle-1 bg-circle"></div>
+    <div class="bg-circle-2 bg-circle"></div>
+    <div class="bg-circle-3 bg-circle"></div>
+    <div class="bg-circle-4 bg-circle"></div>
+  </header>
+
+ 
+  
+
+{% endblock content %}
