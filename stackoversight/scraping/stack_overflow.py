@@ -1,14 +1,14 @@
-# For basic Site class
-from stackoversight.scraping.site import Site
-# For site tags and sorts
+import logging
+import threading
 from enum import Enum
-# For proxy exception
-import requests
-# Need that mutable tuple my dude
+
 from recordclass.mutabletuple import mutabletuple
 
+import requests
+from stackoversight.scraping.abstractsite import AbstractSite
 
-class StackOverflow(Site):
+
+class StackOverflow(AbstractSite):
     site = 'stackoverflow'
     api_url = 'https://api.stackexchange.com'
     api_version = '2.2'
@@ -19,7 +19,11 @@ class StackOverflow(Site):
     min_pause = 1 / 30
     page_size = 100
 
+    req_table_lock = threading.Lock()
     req_table = set()
+
+    back_off_lock = threading.Lock()
+    back_off = 0
 
     fields = {'sort': 'sort',
               'order': 'order',
@@ -57,13 +61,14 @@ class StackOverflow(Site):
         python3 = 'python-3.x'
         java = 'java'
 
-    def __init__(self, client_keys: list):
-        sessions = [self.init_key(key) for key in client_keys]
+        java = 'java'
 
-        super(StackOverflow, self).__init__(sessions, self.timeout_sec, self.limit)
+    def __init__(self, client_keys: list):
+        super(StackOverflow, self).__init__([self.init_key(key) for key in client_keys], self.timeout_sec, self.limit)
 
     def get_child_links(self, parent_link: str, pause=False, pause_time=None):
         response = self.process_request(parent_link, pause, pause_time)
+
         # TODO: handle None response
         key = response[1]
         request_count = response[2]
@@ -75,27 +80,35 @@ class StackOverflow(Site):
         links = [item['link'] for item in response['items']]
 
         if quota_max - quota_remaining != request_count:
-            print(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
-            # raise ValueError
+            logging.warning(f'Request count for key {key} is off by {abs(quota_max - quota_remaining - request_count)}')
 
         if not links:
-            print('The proxy is up but it is failing to pull from the site.')
-            raise requests.exceptions.ProxyError
+            logging.critical('Failing to pull from the site, raising exception.')
+            raise requests.exceptions.RequestException
 
         if self.fields['back_off'] in response:
-            self.back_off = response[self.fields['back_off']]
+            logging.info(f'{threading.current_thread().getName()} received a back_off after processing {parent_link}')
+
+            new_back_off = response[self.fields['back_off']]
+
+            with self.back_off_lock:
+                if self.back_off and self.back_off < new_back_off:
+                    self.back_off = new_back_off
 
         return links, has_more
 
-    # as a hook for future needs
-    def handle_request(self, url: str, key: str):
-        url = f'{url}&{self.fields["key"]}={key}'
+    def handle_request(self, link: str, key: str):
+        link = f'{link}&{self.fields["key"]}={key}'
 
         # TODO: have this function return None if it has already been scraped
-        # if url not in self.req_table:
-        #    self.req_table.add(url)
+        with self.req_table_lock:
+            if link not in self.req_table:
+                self.req_table.add(link)
+            else:
+                logging.warning(f'{threading.current_thread().getName()} received a link, {link} that has already been'
+                                f' scraped!')
 
-        return requests.get(url)
+        return requests.get(link)
 
     @staticmethod
     def create_parent_link(method=Methods.question.value, **kwargs):
@@ -111,7 +124,9 @@ class StackOverflow(Site):
 
                 url_fields += f'{StackOverflow.fields[key]}={kwargs[key]}'
 
-        return url + url_fields
+        url += url_fields
+        logging.info(f'Parent link {url} created.')
+        return url
 
     @staticmethod
     def init_key(key: str):
@@ -120,26 +135,39 @@ class StackOverflow(Site):
                                 f'{StackOverflow.site}&{StackOverflow.fields["key"]}={key}').json()
 
         if response['quota_max'] != StackOverflow.limit:
+            # TODO: later on handle by updating the limit instead
+            logging.critical('Limit does not match that returned by the site, raising exception.')
             raise ValueError
 
-        return mutabletuple(StackOverflow.limit - response['quota_remaining'], key)
+        return mutabletuple(StackOverflow.limit - response['quota_remaining'] + 1, key)
 
     @staticmethod
     def get_text(response: requests.Response):
         try:
-            return [element.get_text() for element in Site.cook_soup(response).find_all(attrs={'class': 'post-text'})]
+            return [element.get_text() for element in
+                    AbstractSite.cook_soup(response).find_all(attrs={'class': 'post-text'})]
         except:
-            # can fail when none are found
+            logging.debug(f'In thread {threading.current_thread().getName()} no post-text found in response.')
             return []
 
     @staticmethod
     def get_code(response: requests.Response):
         try:
-            return [element.get_text() for element in Site.cook_soup(response).find_all('code')]
+            return [element.get_text() for element in AbstractSite.cook_soup(response).find_all('code')]
         except:
-            # can fail when none are found
+            logging.debug(f'In thread {threading.current_thread().getName()} no code found in response.')
             return []
 
     @staticmethod
     def get_min_pause():
         return StackOverflow.min_pause
+
+    @staticmethod
+    def clear_back_off():
+        with StackOverflow.back_off_lock:
+            prev_back_off = StackOverflow.back_off
+
+            if StackOverflow.back_off:
+                StackOverflow.back_off = 0
+
+        return prev_back_off

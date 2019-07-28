@@ -1,20 +1,22 @@
-# To set the http_proxy environment variable
-import os
-# For making the site requests and overall request management
-from stackoversight.scraping.stack_overflow import StackOverflow
-# For child link queue
-from queue import Queue
-# For threading the scraping process
-import threading
-# For serialization
 import json
-# For thread management
+import logging
+import os
+import threading
+import time
+from queue import Queue
+
+from stackoversight.scraping.stack_overflow import StackOverflow
 from stackoversight.scraping.thread_executioner import ThreadExecutioner
 
 
 class StackOversight(object):
-    def __init__(self, client_keys: list, proxy=None):
+    code_lock = threading.Lock()
+    text_lock = threading.Lock()
+
+    def __init__(self, client_keys: list, kill: threading.Event, proxy=None):
         if proxy:
+            logging.info(f'Proxy {proxy} is being used.')
+
             # address of the proxy server
             self.proxy = 'http://localhost:5050'
 
@@ -29,8 +31,7 @@ class StackOversight(object):
         self.thread_handles = []
         self.file_handles = []
 
-        self.code_lock = threading.Lock()
-        self.text_lock = threading.Lock()
+        self.kill = kill
 
     def start(self, parent_link_queue: Queue, code_file_name='code.txt', text_file_name='text.txt'):
         code_io_handle = open(code_file_name, 'w')
@@ -39,110 +40,123 @@ class StackOversight(object):
         self.file_handles.extend((code_io_handle, text_io_handle))
 
         child_link_queue = Queue()
-        kill = threading.Event()
 
         parent_link_thread = threading.Thread(target=ThreadExecutioner.execute,
-                                              args=(parent_link_queue, self.site, child_link_queue, kill))
+                                              args=(self.scrape_parent_link, parent_link_queue, self.site,
+                                                    child_link_queue, self.kill))
         parent_link_thread.setName("StackExchange API Manager")
 
         child_link_thread = threading.Thread(target=ThreadExecutioner.execute,
-                                             args=(child_link_queue, self.site, code_io_handle, text_io_handle, kill))
+                                             args=(self.scrape_child_link, child_link_queue, self.site, code_io_handle,
+                                                   text_io_handle, self.kill))
         child_link_thread.setName("StackOverflow Scraping Manager")
 
         self.thread_handles.extend((parent_link_thread, child_link_thread))
 
         for handle in self.thread_handles:
+            logging.info(f'Starting {handle.getName()}.')
+
             handle.start()
 
-        kill.wait()
+        self.kill.wait()
 
         for handle in self.thread_handles:
             was_alive = ThreadExecutioner.murder(handle)
-            print(f'{handle.getName()} is {["not "] if [not was_alive] else [""]} healthy.')
+            logging.debug(f'{handle.getName()} was {["not "] if [not was_alive] else [""]} alive.')
 
         for file_handle in self.file_handles:
             file_handle.close()
 
-    def scrape_parent_links(self, input_queue: Queue, site: StackOverflow, output_queue: Queue,
-                            failure: threading.Event):
-        ThreadExecutioner.execute(self.scrape_parent_link, input_queue, site, output_queue, failure)
+    @staticmethod
+    def scrape_parent_link(link: str, used_parents: Queue, site: StackOverflow, output_queue: Queue,
+                           kill: threading.Event):
+        current_thread_name = threading.current_thread().getName()
+        has_more = True
+        response = None
+        page = 1
 
-    def scrape_child_links(self, input_queue: Queue, site: StackOverflow, code_io_handle, text_io_handle,
-                           failure: threading.Event):
-        ThreadExecutioner.execute(self.scrape_child_link, input_queue, site, code_io_handle,
-                                          text_io_handle, failure)
-
-    def scrape_parent_link(self, link: str, used_parents: Queue, site: StackOverflow, output_queue: Queue,
-                           failure: threading.Event):
         try:
-            has_more = True
             while has_more:
                 try:
-                    # TODO: handle None response
-                    # TODO: make sure actually incrementing page
-                    response = site.get_child_links(link, pause=True)
+                    response = site.get_child_links(link + f'&{StackOverflow.fields["page"]}={page}', pause=True)
                 except SystemExit:
                     raise
                 except:
-                    # TODO: logging
-                    failure.set()
-                    raise
+                    logging.critical(f'Unexpected error caught in {current_thread_name} after making'
+                                     f'request with {link}.\n{[response] if [response] else ["Response not captured!"]}'
+                                     f'\nNow ending process.')
+                    kill.set()
 
+                # TODO: handle None response
                 has_more = response[1]
                 response = response[0]
                 list(map(output_queue.put, response))
 
                 if not has_more:
+                    logging.info(f'Finished with link {link}, now marking {current_thread_name} for death.')
+
                     used_parents.put(threading.currentThread())
                     break
+                else:
+                    page += 1
+
         except SystemExit:
-            print()
-            # TODO: logging
+            logging.info(f'System exit exception raised, {current_thread_name} successfully killed.')
 
     def scrape_child_link(self, link: str, used_children: Queue, site: StackOverflow, code_io_handle, text_io_handle,
-                          failure: threading.Event):
+                          kill: threading.Event):
+        current_thread_name = threading.current_thread().getName()
+        response = None
+
         try:
-            # TODO: thread this point on in this method for each link
-            # TODO: handle None response
             try:
                 response = site.process_request(link, pause=True)[0]
             except SystemExit:
                 raise
             except:
-                # TODO: logging
-                failure.set()
-                raise
+                logging.critical(f'Unexpected error caught in {current_thread_name} after making'
+                                 f'request with {link}.\n{[response] if [response] else ["Response not captured!"]}'
+                                 f'\nNow ending process.')
 
+                kill.set()
+
+            # TODO: handle None response
             for code in site.get_code(response):
                 snippet = {'snippet': code}
 
                 with self.code_lock:
                     json.dump(snippet, code_io_handle)
-                    # code_io_handle.write(code)
 
             for text in site.get_text(response):
                 snippet = {'snippet': text}
 
                 with self.text_lock:
                     json.dump(snippet, text_io_handle)
-                    # text_io_handle.write(text)
 
+            logging.info(f'Finished with link {link}, now marking {current_thread_name} for death.')
             used_children.put(threading.current_thread())
 
         except SystemExit:
-            print()
-            # TODO: logging
+            logging.info(f'System exit exception raised, {current_thread_name} successfully killed.')
 
 
 # for debugging only
+logging.basicConfig(filename=f'scraper.{time.strftime("%Y%m%d-%H%M%S")}.log', level=logging.DEBUG)
+
 keys = ['RGaU7lYPN8L5KbnIfkxmGQ((', '1yfsxJa1AC*GlxN6RSemCQ((']
 
 python_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.value,
                                                 order=StackOverflow.Orders.descending.value,
                                                 tag=StackOverflow.Tags.python.value, page_size=100)
 
-link_queue = Queue()
-link_queue.put(python_posts)
+java_posts = StackOverflow.create_parent_link(sort=StackOverflow.Sorts.votes.value,
+                                              order=StackOverflow.Orders.descending.value,
+                                              tag=StackOverflow.Tags.java.value, page_size=100)
 
-scraper = StackOversight(keys)
+link_queue = Queue()
+link_queue.put(java_posts)
+
+_kill = threading.Event()
+
+scraper = StackOversight(keys, _kill)
 scraper.start(link_queue)
