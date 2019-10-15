@@ -3,12 +3,12 @@ import json
 import os
 
 
-
+''' database was stored locally so fill in the host user password and database based on the profile of your machine '''
 mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="P455w0rd++",
-    database="stackoversight"
+    host="localhost", 
+    user="username",    
+    password="password",
+    database="database_name"
     )
 
 mycursor = mydb.cursor()
