@@ -50,10 +50,11 @@ class PipelineOutput(list):
     def form_lsh(self):
         minhash = []
 
-        for s in self.__items:
+        for list_keywords in self.__items:
             m = MinHash(num_perm=256)
-            for q in s:
-                m.update(q.encode('utf8'))
+            for result in list_keywords:
+                if result is not None:
+                    m.update(result.encode('utf8'))
             minhash.append(m)
 
         forest = MinHashLSHForest(num_perm=256)
@@ -93,7 +94,8 @@ class PipelineOutput(list):
 
         m = MinHash(num_perm=256)
         for s in item:
-            m.update(s.encode('utf8'))
+            if s is not None:
+                m.update(s.encode('utf8'))
         query = self.__forest.query(m, 5)
         out = np.array(query)
         self.__hash_results = query
